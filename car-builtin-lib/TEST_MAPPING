@@ -1,0 +1,16 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "CarBuiltinLibUnitTest"
+    },
+    {
+      "name": "CtsCarTestCases"
+    },
+    {
+      "name": "CtsCarBuiltinApiTestCases"
+    },
+    {
+      "name": "CtsCarBuiltinApiHostTestCases"
+    }
+  ]
+}

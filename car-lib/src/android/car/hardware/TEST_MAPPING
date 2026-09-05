@@ -1,0 +1,12 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "CarLibPropertyUnitTest",
+      "file_patterns": [
+        "CarHvacFanDirection\\.java",
+        "CarProperty[^/]+\\.java",
+        "CarSensor[^/]+\\.java"
+      ]
+    }
+  ]
+}

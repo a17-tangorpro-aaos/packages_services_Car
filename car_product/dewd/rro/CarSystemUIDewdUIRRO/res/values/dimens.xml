@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2025 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingDefaultResource,PxUsage">
+    <!-- Keyguard -->
+    <dimen name="pin_view_container_maxHeight">380dp</dimen>
+    <dimen name="pattern_view_container_maxHeight">800dp</dimen>
+
+    <!-- Biometrics dimens -->
+    <dimen name="biometric_dialog_elevation">1dp</dimen>
+    <dimen name="biometric_car_auth_pattern_view_size">420dp</dimen>
+    <dimen name="confirm_lock_message_vertical_spacing">80dp</dimen>
+    <dimen name="biometric_horizontal_margin">348dp</dimen>
+    <dimen name="credential_input_width">528dp</dimen>
+    <dimen name="credential_input_vertical_padding">160dp</dimen>
+    <dimen name="pin_pad_key_radius">44dp</dimen>
+    <dimen name="pin_pad_key_width">160dp</dimen>
+    <dimen name="pin_pad_key_height">108dp</dimen>
+    <dimen name="pin_pad_key_margin">10dp</dimen>
+    <dimen name="lock_pattern_dot_size">32dp</dimen>
+
+    <dimen name="safe_bounds_open_top">747px</dimen>
+    <dimen name="safe_bounds_close_top">2156px</dimen>
+    <dimen name="safe_bounds_close_bottom">2837px</dimen>
+
+    <dimen name="status_bar_height">80px</dimen>
+    <dimen name="navigation_bar_height">140px</dimen>
+</resources>

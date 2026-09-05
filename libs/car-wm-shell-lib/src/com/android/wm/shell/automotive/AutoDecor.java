@@ -1,0 +1,301 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.wm.shell.automotive;
+
+import static android.view.WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+import static android.view.WindowManager.LayoutParams.FLAG_SPLIT_TOUCH;
+import static android.view.WindowManager.LayoutParams.INPUT_FEATURE_SPY;
+import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION;
+
+import static com.android.wm.shell.automotive.CarWmShellProtoLogGroups.CAR_WM_SHELL_DECOR;
+
+import android.annotation.Nullable;
+import android.app.ActivityManager;
+import android.content.Context;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.view.Display;
+import android.view.SurfaceControl;
+import android.view.SurfaceControlViewHost;
+import android.view.View;
+import android.view.WindowManager;
+import android.window.InputTransferToken;
+
+import com.android.internal.protolog.ProtoLog;
+import com.android.wm.shell.common.DisplayController;
+
+import java.io.PrintWriter;
+
+/**
+ * A class representing a decorative element in the automotive UI.  This class manages the
+ * lifecycle and properties of the decor view, including its attachment to the parent surface,
+ * z-order, bounds, and visibility.
+ */
+public final class AutoDecor {
+    private final Context mContext;
+    private final DisplayController mDisplayController;
+    private final View mView;
+    private final String mDecorName;
+    private final AutoTaskRepository mAutoTaskRepository;
+    @Nullable
+    private SurfaceControlViewHost mViewHost;
+    private int mZOrder;
+    private Rect mBounds;
+    private boolean mIsCurrentlyAttached;
+    private boolean mIsEverAttached;
+    private boolean mIsVisible;
+
+    /**
+     * Constructor for AutoDecor.
+     *
+     * @param context            The context.
+     * @param displayController  The display controller.
+     * @param autoTaskRepository The auto task repository
+     * @param view               The view associated with the decor.
+     * @param zOrder             The z-order of the decor.
+     * @param bounds             The bounds of the decor.
+     * @param decorName          The name of the decor.
+     */
+    AutoDecor(Context context, DisplayController displayController,
+            AutoTaskRepository autoTaskRepository,
+            View view, int zOrder, Rect bounds, String decorName) {
+        mContext = context;
+        mDisplayController = displayController;
+        mAutoTaskRepository = autoTaskRepository;
+        mView = view;
+        mDecorName = decorName;
+        mZOrder = zOrder;
+        mBounds = bounds;
+        mIsCurrentlyAttached = false;
+        mIsEverAttached = false;
+        mIsVisible = false;
+    }
+
+    /**
+     * Returns the view associated with the decor.
+     *
+     * @return The view.
+     */
+    public View getView() {
+        return mView;
+    }
+
+    /**
+     * Returns the z-order of the decor.
+     *
+     * @return The z-order.
+     */
+    public int getZOrder() {
+        return mZOrder;
+    }
+
+    /**
+     * Returns the bounds of the decor.
+     *
+     * @return The bounds.
+     */
+    public Rect getBounds() {
+        return mBounds;
+    }
+
+    /**
+     * Checks if the decor is currently attached to the parent surface.
+     *
+     * @return True if attached, false otherwise.
+     */
+    boolean isCurrentlyAttached() {
+        return mIsCurrentlyAttached;
+    }
+
+    /**
+     * Checks if the decor has ever been attached to the parent surface.
+     *
+     * @return True if ever attached, false otherwise.
+     */
+    boolean isEverAttached() {
+        return mIsEverAttached;
+    }
+
+    /**
+     * Checks if the decor is visible.
+     *
+     * @return True if visible.
+     */
+    boolean isVisible() {
+        return mIsVisible;
+    }
+
+    /**
+     * Updates the visibility of the decor.
+     */
+    void updateVisibility(boolean isVisible) {
+        mIsVisible = isVisible;
+    }
+
+    /**
+     * Updates the z-order of the decor.
+     */
+    void updateZOrder(int zOrder) {
+        mZOrder = zOrder;
+    }
+
+    /**
+     * Updates the bounds of the decor.
+     */
+    void updateBounds(Rect bounds) {
+        mBounds = bounds;
+    }
+
+    /**
+     * Attaches the decor to the parent surface.
+     *
+     * @param displayId     The display ID.
+     * @param parentSurface The parent surface.
+     */
+    void attachDecorToParentSurface(int displayId, SurfaceControl parentSurface) {
+        attachDecorToParentSurface(displayId, parentSurface, /*addSpyWindow*/ false);
+    }
+
+    private void attachDecorToParentSurface(int displayId, SurfaceControl parentSurface,
+            boolean addSpyWindow) {
+        ProtoLog.d(CAR_WM_SHELL_DECOR, "Adding Decor %s to the parent surface %s for display %d",
+                this,
+                String.valueOf(parentSurface), displayId);
+        Display display = mDisplayController.getDisplay(displayId);
+        if (display == null) {
+            ProtoLog.e(CAR_WM_SHELL_DECOR, "Display with id %d not found. Not adding the decor.",
+                    displayId);
+            return;
+        }
+        mViewHost = new SurfaceControlViewHost(mContext, display,
+                (InputTransferToken) null, "AutoDecor");
+
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(mBounds.width(),
+                mBounds.height(), TYPE_APPLICATION, FLAG_NOT_FOCUSABLE | FLAG_SPLIT_TOUCH,
+                PixelFormat.TRANSPARENT);
+        if (addSpyWindow) {
+            // This flag is added to make the window a spy window. In that case, the touch will be
+            // passed to the underlying surface. In case of AutoCaptionController, this is used
+            // so that focus shifts to the task whose caption bar is clicked.
+            lp.inputFeatures = lp.inputFeatures | INPUT_FEATURE_SPY;
+        }
+        lp.setTitle(mDecorName);
+        lp.setTrustedOverlay();
+
+        mViewHost.setView(mView, lp);
+
+        SurfaceControl viewSurface = mViewHost.getSurfacePackage().getSurfaceControl();
+
+        SurfaceControl.Transaction t = new SurfaceControl.Transaction();
+        t.reparent(viewSurface, parentSurface)
+                .setPosition(viewSurface, mBounds.left, mBounds.top)
+                .setLayer(viewSurface, mZOrder)
+                .show(viewSurface);
+        t.apply();
+        mIsCurrentlyAttached = true;
+        mIsEverAttached = true;
+    }
+
+    /**
+     * Attaches the decor to the task.
+     */
+    void attachDecorToTask(ActivityManager.RunningTaskInfo task) {
+        int displayId = task.getDisplayId();
+        SurfaceControl taskSurface = mAutoTaskRepository.getSurfaceControl(task);
+        if (taskSurface == null) {
+            ProtoLog.e(CAR_WM_SHELL_DECOR,
+                    "TaskSurface is not found. Not adding the decor. Task: %s",
+                    String.valueOf(task));
+            return;
+        }
+
+        attachDecorToParentSurface(displayId, taskSurface, false);
+    }
+
+    /**
+     * Attaches the decor to the task.
+     */
+    void attachDecorToTask(ActivityManager.RunningTaskInfo task, boolean addSpyWindow) {
+        int displayId = task.getDisplayId();
+        SurfaceControl taskSurface = mAutoTaskRepository.getSurfaceControl(task);
+        if (taskSurface == null) {
+            ProtoLog.e(CAR_WM_SHELL_DECOR,
+                    "TaskSurface is not found. Not adding the decor. Task: %s",
+                    String.valueOf(task));
+            return;
+        }
+
+        attachDecorToParentSurface(displayId, taskSurface, addSpyWindow);
+    }
+
+
+    /**
+     * Detaches the decor from the parent surface.
+     */
+    void detachDecorFromParentSurface() {
+        ProtoLog.d(CAR_WM_SHELL_DECOR, "Detaching Decor %s", this);
+        if (mViewHost == null) {
+            ProtoLog.e(CAR_WM_SHELL_DECOR, "ViewHost is null. Not detaching the decor.");
+            return;
+        }
+        SurfaceControl viewSurface = mViewHost.getSurfacePackage().getSurfaceControl();
+        SurfaceControl.Transaction t = new SurfaceControl.Transaction();
+        t.reparent(viewSurface, null);
+        t.apply();
+        mViewHost.release();
+        // remove reference
+        mViewHost = null;
+        mIsCurrentlyAttached = false;
+    }
+
+    /**
+     * Returns the {@link SurfaceControlViewHost} associated with the decor.
+     *
+     * @return The SurfaceControlViewHost.
+     */
+    // TODO(b/442578643) root cause NPEs and make this non-nullable
+    @Nullable
+    SurfaceControlViewHost getViewHost() {
+        return mViewHost;
+    }
+
+    /**
+     * Returns the name of the decor.
+     *
+     * @return The name.
+     */
+    String getName() {
+        return mDecorName;
+    }
+
+    @Override
+    public String toString() {
+        return "AutoDecor: Name-" + mDecorName;
+    }
+
+    void dump(PrintWriter pw, String prefix) {
+        String localPrefix = "    ";
+        pw.println(prefix + "Auto Decor:-");
+        pw.println(prefix + localPrefix + "Name: " + mDecorName);
+        pw.println(prefix + localPrefix + "View: " + mView);
+        pw.println(prefix + localPrefix + "Z Order: " + mZOrder);
+        pw.println(prefix + localPrefix + "Bounds: " + mBounds);
+        pw.println(prefix + localPrefix + "Currently attached: " + mIsCurrentlyAttached);
+        pw.println(prefix + localPrefix + "Ever attached: " + mIsEverAttached);
+        pw.println(prefix + localPrefix + "Visible: " + mIsVisible);
+    }
+}

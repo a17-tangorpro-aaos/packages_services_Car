@@ -1,0 +1,110 @@
+//
+// Copyright (C) 2025 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+package {
+    default_team: "trendy_team_aaos_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+// Begin ProtoLog
+java_library {
+    name: "car_wm_shell_protolog-groups",
+    srcs: [
+        "src/com/android/wm/shell/automotive/CarWmShellProtoLogGroups.java",
+    ],
+    static_libs: [
+        "protolog-common-lib",
+    ],
+}
+
+filegroup {
+    name: "car_wm_shell-sources",
+    srcs: [
+        "src/**/*.java",
+    ],
+    path: "src",
+}
+
+// TODO(b/168581922) protologtool do not support kotlin(*.kt)
+filegroup {
+    name: "car_wm_shell-sources-kt",
+    srcs: [
+        "src/**/*.kt",
+    ],
+    path: "src",
+}
+
+java_genrule {
+    name: "car_wm_shell_protolog_src",
+    srcs: [
+        ":protolog-impl",
+        ":car_wm_shell-sources",
+        ":car_wm_shell_protolog-groups",
+    ],
+    tools: ["protologtool"],
+    cmd: "$(location protologtool) transform-protolog-calls " +
+        "--protolog-class com.android.internal.protolog.ProtoLog " +
+        "--loggroups-class com.android.wm.shell.automotive.CarWmShellProtoLogGroups " +
+        "--loggroups-jar $(location :car_wm_shell_protolog-groups) " +
+        "--viewer-config-file-path /system_ext/etc/carwmshell.protolog.pb " +
+        "--output-srcjar $(out) " +
+        "$(locations :car_wm_shell-sources)",
+    out: ["car_wm_shell_protolog.srcjar"],
+}
+
+java_genrule {
+    name: "gen-carwmshell.protolog.pb",
+    srcs: [
+        ":car_wm_shell-sources",
+        ":car_wm_shell_protolog-groups",
+    ],
+    tools: ["protologtool"],
+    cmd: "$(location protologtool) generate-viewer-config " +
+        "--protolog-class com.android.internal.protolog.ProtoLog " +
+        "--loggroups-class com.android.wm.shell.automotive.CarWmShellProtoLogGroups " +
+        "--loggroups-jar $(location :car_wm_shell_protolog-groups) " +
+        "--viewer-config $(out) " +
+        "$(locations :car_wm_shell-sources)",
+    out: ["carwmshell.protolog.pb"],
+}
+
+prebuilt_etc {
+    name: "carwmshell.protolog.pb",
+    system_ext_specific: true,
+    src: ":gen-carwmshell.protolog.pb",
+    filename_from_src: true,
+}
+
+// End ProtoLog
+
+android_library {
+    name: "Car-WindowManager-Shell",
+    srcs: [
+        ":car_wm_shell-sources-kt",
+        ":car_wm_shell_protolog_src",
+    ],
+    static_libs: [
+        "Slogf",
+        "WindowManager-Shell",
+        "WindowManager-Shell-shared",
+        "com_android_wm_shell_automotive_flags_lib",
+    ],
+
+    libs: ["android.car"],
+
+    kotlincflags: ["-Xjvm-default=all"],
+    plugins: ["dagger2-compiler"],
+    use_resource_processor: true,
+}

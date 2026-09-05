@@ -1,0 +1,286 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.car.internal.test;
+
+import static com.android.car.internal.test.LargeParcelableTest.createByteArray;
+
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.assertThrows;
+
+import android.car.apitest.IStableAIDLTestBinder;
+import android.car.apitest.IStableAIDLTestCallback;
+import android.car.apitest.StableAIDLTestLargeParcelable;
+import android.car.extendedapitest.testbase.CarLessApiTestBase;
+import android.car.test.mocks.JavaMockitoHelper;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.Parcelable;
+
+import androidx.test.filters.SmallTest;
+
+import com.android.car.internal.LargeParcelable;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
+
+/**
+ * Integration tests for {@link LargeParcelable#toLargeParcelable} and
+ * {@link LargeParcelable#reconstructStableAIDLParcelable}.
+ *
+ * <p>This test uses the stable parcelable: {@link StableAIDLTestLargeParcelable} to communicate
+ * data between the test process and a {@link IStableAIDLBinderTestService} we created.
+ *
+ * <p>This test verifies that we can send and receive stable large parcelable to/from a service.
+ */
+@SmallTest
+public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase {
+
+    private static final String TAG = LargeParcelableJavaStableAIDLTest.class.getSimpleName();
+
+    private static final long DEFAULT_TIMEOUT_MS = 60_000;
+    private static final int ARRAY_LENGTH_SMALL = 2048;
+    // The current threshold is 4096.
+    private static final int ARRAY_LENGTH_BIG = 4099;
+
+    private final TestServiceConnection mServiceConnection = new TestServiceConnection();
+
+    private IStableAIDLTestBinder mBinder;
+
+    private static class TestCallback extends IStableAIDLTestCallback.Stub {
+        @Override
+        public void reply(StableAIDLTestLargeParcelable p) {
+            mResult = p;
+        }
+
+        public StableAIDLTestLargeParcelable getResult() {
+            return mResult;
+        }
+
+        private StableAIDLTestLargeParcelable mResult;
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        LargeParcelable.setClassLoader(mContext.getClassLoader());
+        Intent intent = new Intent();
+        intent.setClassName(mContext, IStableAIDLBinderTestService.class.getName());
+        mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        JavaMockitoHelper.await(mServiceConnection.latch, DEFAULT_TIMEOUT_MS);
+    }
+
+    @After
+    public void tearDown() {
+        mContext.unbindService(mServiceConnection);
+    }
+
+    @Test
+    public void testEchoSmallPayload() throws Exception {
+        doTestLEcho(ARRAY_LENGTH_SMALL);
+    }
+
+    @Test
+    public void testEchoBigPayload() throws Exception {
+        doTestLEcho(ARRAY_LENGTH_BIG);
+    }
+
+    @Test
+    public void testEchoSmallPayloadPerfTest() throws Exception {
+        for (int i = 0; i < 1000; i++) {
+            doTestLEcho(ARRAY_LENGTH_SMALL);
+        }
+    }
+
+    @Test
+    public void testEchoBigPayloadPerfTest() throws Exception {
+        for (int i = 0; i < 1000; i++) {
+            doTestLEcho(ARRAY_LENGTH_BIG);
+        }
+    }
+
+    @Test
+    public void testEchoMultipleArgsSmallPayload() throws Exception {
+        doTestMultipleArgs(ARRAY_LENGTH_SMALL);
+    }
+
+    @Test
+    public void testEchoMultipleArgsBigPayload() throws Exception {
+        doTestMultipleArgs(ARRAY_LENGTH_BIG);
+    }
+
+    @Test
+    public void testNullParcelable() throws Exception {
+        StableAIDLTestLargeParcelable r = mBinder.echo(null);
+
+        assertThat(r).isNull();
+
+        long argValue = 0x12345678;
+
+        long rValue = mBinder.echoWithLong(null, argValue);
+
+        assertThat(argValue).isEqualTo(rValue);
+    }
+
+    @Test
+    public void testEchoWithCallbackSmallPayload() throws Exception {
+        doTestEchoWithCallback(ARRAY_LENGTH_SMALL);
+    }
+
+    @Test
+    public void testEchoWithCallbackBigPayload() throws Exception {
+        doTestEchoWithCallback(ARRAY_LENGTH_BIG);
+    }
+
+    @Test
+    public void testToLargeParcelableNull() {
+        assertThat(LargeParcelable.toLargeParcelable(null)).isNull();
+    }
+
+    @Test
+    public void testToLargeParcelableNoField() {
+        TestParcelable smallParcelable = new TestParcelable(createByteArray(5));
+
+        assertThrows(IllegalArgumentException.class, () -> LargeParcelable.toLargeParcelable(
+                smallParcelable));
+    }
+
+    @Test
+    public void testReconstructStableLargeParcelable_withCreator() throws Exception {
+        int payloadSize = ARRAY_LENGTH_BIG;
+        StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
+        byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
+        orig.payload = payload;
+        orig = prepareParcelable(orig);
+
+        StableAIDLTestLargeParcelable r = mBinder.echo(orig);
+
+        var reconstructed = LargeParcelable.reconstructStableAIDLParcelable(r, r.sharedMemoryFd,
+                StableAIDLTestLargeParcelable.CREATOR);
+
+        assertThat(reconstructed).isNotNull();
+        assertThat(reconstructed.payload).isNotNull();
+        assertThat(reconstructed.payload).isEqualTo(payload);
+        assertThat(reconstructed.sharedMemoryFd).isNull();
+    }
+
+    /**
+     * Prepares a StableAIDLTestLargeParcelable object for sending across process boundaries using
+     * a LargeParcelable wrapper.
+     *
+     * @param in The StableAIDLTestLargeParcelable object to be prepared.
+     * @return The prepared StableAIDLTestLargeParcelable object, wrapped and ready for sending.
+     */
+    public StableAIDLTestLargeParcelable prepareParcelable(StableAIDLTestLargeParcelable in) {
+        Parcelable sendableParcelable = LargeParcelable.toLargeParcelable(in, () -> {
+            StableAIDLTestLargeParcelable o = new StableAIDLTestLargeParcelable();
+            o.payload = new byte[0];
+            return o;
+        });
+        return (StableAIDLTestLargeParcelable) sendableParcelable;
+    }
+
+    private void doTestLEcho(int payloadSize) throws Exception {
+        StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
+        byte[] payload = createByteArray(payloadSize);
+        orig.payload = payload;
+        orig = prepareParcelable(orig);
+
+        StableAIDLTestLargeParcelable r = mBinder.echo(orig);
+        r = (StableAIDLTestLargeParcelable)
+                LargeParcelable.reconstructStableAIDLParcelable(r, true);
+
+        assertThat(r).isNotNull();
+        assertThat(r.payload).isNotNull();
+        assertThat(r.payload).isEqualTo(payload);
+        if (payloadSize > LargeParcelable.MAX_DIRECT_PAYLOAD_SIZE) {
+            assertThat(orig.sharedMemoryFd).isNotNull();
+            assertThat(orig.payload.length).isEqualTo(0);
+            assertThat(r.sharedMemoryFd).isNotNull();
+        } else {
+            assertThat(orig.sharedMemoryFd).isNull();
+            assertThat(orig.payload.length).isNotEqualTo(0);
+            assertThat(r.sharedMemoryFd).isNull();
+        }
+    }
+
+    private void doTestMultipleArgs(int payloadSize) throws Exception {
+        StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
+        byte[] payload = createByteArray(payloadSize);
+        orig.payload = payload;
+        long argValue = 0x12345678;
+        long expectedRet = argValue + IStableAIDLBinderTestService.calcByteSum(orig);
+        orig = prepareParcelable(orig);
+
+        long r = mBinder.echoWithLong(orig, argValue);
+
+        assertThat(r).isEqualTo(expectedRet);
+        if (payloadSize > LargeParcelable.MAX_DIRECT_PAYLOAD_SIZE) {
+            assertThat(orig.sharedMemoryFd).isNotNull();
+            assertThat(orig.payload.length).isEqualTo(0);
+        } else {
+            assertThat(orig.sharedMemoryFd).isNull();
+            assertThat(orig.payload.length).isNotEqualTo(0);
+        }
+    }
+
+    private void doTestEchoWithCallback(int payloadSize) throws Exception {
+        StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
+        byte[] payload = createByteArray(payloadSize);
+        orig.payload = payload;
+        TestCallback callback = new TestCallback();
+        orig = prepareParcelable(orig);
+
+        mBinder.echoWithCallback(callback, orig);
+
+        StableAIDLTestLargeParcelable r = callback.getResult();
+        r = (StableAIDLTestLargeParcelable)
+                LargeParcelable.reconstructStableAIDLParcelable(r, true);
+
+        assertThat(r).isNotNull();
+        assertThat(r.payload).isNotNull();
+        assertThat(r.payload).isEqualTo(payload);
+        if (payloadSize > LargeParcelable.MAX_DIRECT_PAYLOAD_SIZE) {
+            assertThat(orig.sharedMemoryFd).isNotNull();
+            assertThat(orig.payload.length).isEqualTo(0);
+            assertThat(r.sharedMemoryFd).isNotNull();
+        } else {
+            assertThat(orig.sharedMemoryFd).isNull();
+            assertThat(orig.payload.length).isNotEqualTo(0);
+            assertThat(r.sharedMemoryFd).isNull();
+        }
+    }
+
+    private final class TestServiceConnection implements ServiceConnection {
+        public final CountDownLatch latch = new CountDownLatch(1);
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mBinder = IStableAIDLTestBinder.Stub.asInterface(service);
+            latch.countDown();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+        }
+    }
+}

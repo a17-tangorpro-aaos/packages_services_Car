@@ -1,0 +1,319 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.car.hal;
+
+import android.annotation.Nullable;
+import android.car.VehicleAreaType;
+import android.car.builtin.util.Slogf;
+import android.car.hardware.CarPropertyConfig;
+import android.car.hardware.property.AreaIdConfig;
+import android.hardware.automotive.vehicle.AnnotationsForVehicleProperty;
+import android.hardware.automotive.vehicle.HasSupportedValueInfo;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
+
+import com.android.car.CarLog;
+import com.android.car.hal.property.PropertyHalServiceConfigs;
+import com.android.internal.annotations.VisibleForTesting;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * HalPropConfig represents a vehicle property config.
+ */
+public abstract class HalPropConfig {
+    /**
+     *  The expected length for config array for HVAC_TEMPERATURE_SET.
+     */
+    public static final int HVAC_CONFIG_ARRAY_LENGTH = 6;
+
+    /**
+     * The @legacy_supported_values_in_config annotation defined in VehicleProperty.aidl.
+     */
+    public static final String ANNOTATION_SUPPORTED_VALUES_IN_CONFIG =
+            "legacy_supported_values_in_config";
+
+     /**
+     * The @data_enum annotation defined in VehicleProperty.aidl.
+     */
+    public static final String ANNOTATION_DATA_ENUM = "data_enum";
+
+    private static final String TAG = CarLog.tagFor(HalPropConfig.class);
+
+    /**
+     * Get the property ID.
+     */
+    public abstract int getPropId();
+
+    /**
+     * Get the access mode.
+     */
+    public abstract int getAccess();
+
+    /**
+     * Get the change mode.
+     */
+    public abstract int getChangeMode();
+
+    /**
+     * Get the area configs.
+     */
+    public abstract HalAreaConfig[] getAreaConfigs();
+
+    /**
+     * Get the config array.
+     */
+    public abstract int[] getConfigArray();
+
+    /**
+     * Get the config string.
+     */
+    public abstract String getConfigString();
+
+    /**
+     * Get the min sample rate.
+     */
+    public abstract float getMinSampleRate();
+
+    /**
+     * Get the max sample rate.
+     */
+    public abstract float getMaxSampleRate();
+
+    /**
+     * Converts to AIDL or HIDL VehiclePropConfig.
+     */
+    public abstract Object toVehiclePropConfig();
+
+    /**
+     * Converts {@link HalPropConfig} to {@link CarPropertyConfig}.
+     *
+     * @param mgrPropertyId The Property ID used by Car Property Manager, different from the
+     *                      property ID used by VHAL.
+     */
+    public CarPropertyConfig<?> toCarPropertyConfig(int mgrPropertyId,
+            PropertyHalServiceConfigs propertyHalServiceConfigs) {
+        return toCarPropertyConfig(mgrPropertyId, propertyHalServiceConfigs,
+                /* isVhalPropId= */ false);
+    }
+
+    /**
+     * Converts {@link HalPropConfig} to {@link CarPropertyConfig}.
+     *
+     * @param mgrPropertyId The Property ID used by Car Property Manager, different from the
+     *                      property ID used by VHAL.
+     */
+    public CarPropertyConfig<?> toCarPropertyConfig(int mgrPropertyId,
+            PropertyHalServiceConfigs propertyHalServiceConfigs, boolean isVhalPropId) {
+        int propId = getPropId();
+        int areaType = getVehicleAreaType(propId & VehicleArea.MASK);
+        Class<?> clazz = CarPropertyUtils.getJavaClass(propId & VehiclePropertyType.MASK);
+
+        int access = getAccess();
+        CarPropertyConfig.Builder carPropertyConfigBuilder = CarPropertyConfig.newBuilder(clazz,
+                mgrPropertyId, areaType).setAccess(access).setChangeMode(
+                getChangeMode()).setConfigString(getConfigString());
+
+        float maxSampleRate = 0f;
+        float minSampleRate = 0f;
+        if (getChangeMode() == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
+            maxSampleRate = getMaxSampleRate();
+            minSampleRate = getMinSampleRate();
+        }
+        carPropertyConfigBuilder.setMinSampleRate(minSampleRate).setMaxSampleRate(maxSampleRate);
+
+        int[] configIntArray = getConfigArray();
+        ArrayList<Integer> configArray = new ArrayList<>(configIntArray.length);
+        long[] supportedEnumValues = null;
+        boolean shouldConfigArrayDefineSupportedEnumValues =
+                shouldConfigArrayDefineSupportedEnumValues(propId);
+        if (shouldConfigArrayDefineSupportedEnumValues) {
+            supportedEnumValues = new long[configIntArray.length];
+        }
+        for (int i = 0; i < configIntArray.length; i++) {
+            configArray.add(configIntArray[i]);
+            if (shouldConfigArrayDefineSupportedEnumValues) {
+                supportedEnumValues[i] = (long) configIntArray[i];
+            }
+        }
+        carPropertyConfigBuilder.setConfigArray(configArray);
+
+        HalAreaConfig[] halAreaConfigs = getAreaConfigs();
+        var allPossibleEnumValues = propertyHalServiceConfigs
+                .getAllPossibleSupportedEnumValues(getPropId());
+        if (halAreaConfigs.length == 0) {
+            carPropertyConfigBuilder.addAreaIdConfig(generateAreaIdConfig(clazz,
+                    allPossibleEnumValues, /* areaId= */ 0,
+                    /* minInt32Value= */ 0, /* maxInt32Value= */ 0,
+                    /* minFloatValue= */ 0, /* maxFloatValue= */ 0,
+                    /* minInt64Value= */ 0, /* maxInt64Value= */ 0,
+                    supportedEnumValues, /* supportVariableUpdateRate= */ false, access,
+                    /* hasSupportedValueInfo= */ null));
+        } else {
+            for (HalAreaConfig halAreaConfig : halAreaConfigs) {
+                if (!shouldConfigArrayDefineSupportedEnumValues) {
+                    supportedEnumValues = halAreaConfig.getSupportedEnumValues();
+                }
+                int areaAccess = (halAreaConfig.getAccess() == VehiclePropertyAccess.NONE)
+                        ? access : halAreaConfig.getAccess();
+                carPropertyConfigBuilder.addAreaIdConfig(
+                        generateAreaIdConfig(clazz, allPossibleEnumValues,
+                                halAreaConfig.getAreaId(),
+                                halAreaConfig.getMinInt32Value(), halAreaConfig.getMaxInt32Value(),
+                                halAreaConfig.getMinFloatValue(), halAreaConfig.getMaxFloatValue(),
+                                halAreaConfig.getMinInt64Value(), halAreaConfig.getMaxInt64Value(),
+                                supportedEnumValues, halAreaConfig.isVariableUpdateRateSupported(),
+                                areaAccess, halAreaConfig.getHasSupportedValueInfo()));
+            }
+        }
+        carPropertyConfigBuilder.setPropertyIdIsSimulationPropId(isVhalPropId);
+        return carPropertyConfigBuilder.build();
+    }
+
+    /**
+     * Whether the property is a enum property and config array should be used to define supported
+     * values.
+     */
+    @VisibleForTesting
+    public static boolean shouldConfigArrayDefineSupportedEnumValues(int halPropId) {
+        var annotations = AnnotationsForVehicleProperty.values.get(halPropId);
+        if (annotations == null) {
+            return false;
+        }
+        return annotations.contains(ANNOTATION_SUPPORTED_VALUES_IN_CONFIG)
+                && annotations.contains(ANNOTATION_DATA_ENUM);
+    }
+
+    private AreaIdConfig generateAreaIdConfig(Class<?> clazz,
+            @Nullable Set<Integer> allPossibleEnumValues, int areaId, int minInt32Value,
+            int maxInt32Value, float minFloatValue, float maxFloatValue, long minInt64Value,
+            long maxInt64Value, long[] supportedEnumValues, boolean supportVariableUpdateRate,
+            int access, @Nullable HasSupportedValueInfo hasSupportedValueInfo) {
+        AreaIdConfig.Builder areaIdConfigBuilder = new AreaIdConfig.Builder(access, areaId);
+        if (classMatched(Integer.class, clazz)) {
+            if ((minInt32Value != 0 || maxInt32Value != 0)) {
+                areaIdConfigBuilder.setMinValue(minInt32Value).setMaxValue(maxInt32Value);
+            }
+            // The supported enum values for {@code HVAC_FAN_DIRECTION} are specified by
+            // {@code HVAC_FAN_DIRECTION_AVAILABLE} and the supportedEnumValues are never populated.
+            if (getChangeMode() == VehiclePropertyChangeMode.ON_CHANGE &&
+                    getPropId() != VehicleProperty.HVAC_FAN_DIRECTION) {
+                if (supportedEnumValues != null && supportedEnumValues.length > 0) {
+                    List<Integer> managerSupportedEnumValues = new ArrayList<>(
+                            supportedEnumValues.length);
+                    for (int i = 0; i < supportedEnumValues.length; i++) {
+                        managerSupportedEnumValues.add((int) supportedEnumValues[i]);
+                    }
+                    areaIdConfigBuilder.setSupportedEnumValues(managerSupportedEnumValues);
+                } else if (allPossibleEnumValues != null) {
+                    areaIdConfigBuilder.setSupportedEnumValues(
+                            new ArrayList(allPossibleEnumValues));
+                }
+            }
+        } else if (classMatched(Float.class, clazz) && (minFloatValue != 0 || maxFloatValue != 0)) {
+            areaIdConfigBuilder.setMinValue(minFloatValue).setMaxValue(maxFloatValue);
+        } else if (classMatched(Long.class, clazz) && (minInt64Value != 0 || maxInt64Value != 0)) {
+            areaIdConfigBuilder.setMinValue(minInt64Value).setMaxValue(maxInt64Value);
+        }
+        areaIdConfigBuilder.setSupportVariableUpdateRate(supportVariableUpdateRate);
+        if (hasSupportedValueInfo != null) {
+            if (hasSupportedValueInfo.hasMinSupportedValue) {
+                areaIdConfigBuilder.setHasMinSupportedValue(true);
+            }
+            if (hasSupportedValueInfo.hasMaxSupportedValue) {
+                areaIdConfigBuilder.setHasMaxSupportedValue(true);
+            }
+            if (hasSupportedValueInfo.hasSupportedValuesList) {
+                areaIdConfigBuilder.setHasSupportedValuesList(true);
+            }
+        } else {
+            // Special logic for properties whose min/max value or supported values list
+            // may be specified through some other way.
+            switch (getPropId()) {
+                case VehicleProperty.HVAC_FAN_DIRECTION:
+                    // The supported values for {@code HVAC_FAN_DIRECTION} are specified by
+                    // {@code HVAC_FAN_DIRECTION_AVAILABLE}.
+                    // If HVAC_FAN_DIRECTION is supported, HVAC_FAN_DIRECTION_AVAILABLE must be
+                    // supported.
+                    areaIdConfigBuilder.setHasSupportedValuesList(true);
+                    break;
+                case VehicleProperty.HVAC_TEMPERATURE_SET:
+                    // The supported values for {@code HVAC_TEMPERATURE_SET} might be specified by
+                    // config array.
+                    int configArrayLength = getConfigArray().length;
+                    if (configArrayLength == HVAC_CONFIG_ARRAY_LENGTH) {
+                        areaIdConfigBuilder.setHasSupportedValuesList(true);
+                    } else if (configArrayLength != 0) {
+                        Slogf.e(TAG, "Unexpected config array length for HVAC_TEMPERATURE_SET, "
+                                + "expect: %d, actual config array: %s", HVAC_CONFIG_ARRAY_LENGTH,
+                                getConfigArray());
+                    }
+                    break;
+                case VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT:
+                    // The max value for {@code EV_CHARGE_CURRENT_DRAW_LIMIT} is specified by config
+                    // array, the min value is set to 0.
+                    if (getConfigArray().length > 0) {
+                        areaIdConfigBuilder.setHasMinSupportedValue(true);
+                        areaIdConfigBuilder.setHasMaxSupportedValue(true);
+                    } else {
+                        Slogf.e(TAG, "Expect at least one element in config array for "
+                                + "EV_CHARGE_CURRENT_DRAW_LIMIT");
+                    }
+                    break;
+            }
+
+            // If the property has annotation: legacy_supported_values_in_config, its supported
+            // values are specified by config array.
+            var annotations = AnnotationsForVehicleProperty.values.get(getPropId());
+            if (annotations != null && annotations.contains(
+                    ANNOTATION_SUPPORTED_VALUES_IN_CONFIG) && getConfigArray().length > 0) {
+                areaIdConfigBuilder.setHasSupportedValuesList(true);
+            }
+        }
+        return areaIdConfigBuilder.build();
+    }
+
+    private static @VehicleAreaType.VehicleAreaTypeValue int getVehicleAreaType(int halArea) {
+        switch (halArea) {
+            case VehicleArea.GLOBAL:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
+            case VehicleArea.SEAT:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_SEAT;
+            case VehicleArea.DOOR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_DOOR;
+            case VehicleArea.WINDOW:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW;
+            case VehicleArea.MIRROR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR;
+            case VehicleArea.WHEEL:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
+            case VehicleArea.VENDOR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_VENDOR;
+            default:
+                throw new RuntimeException("Unsupported area type " + halArea);
+        }
+    }
+
+    private static boolean classMatched(Class<?> class1, Class<?> class2) {
+        return class1 == class2 || class1.getComponentType() == class2;
+    }
+}

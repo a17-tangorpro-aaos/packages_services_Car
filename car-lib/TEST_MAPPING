@@ -1,0 +1,31 @@
+{
+  "auto-presubmit": [
+    {
+      "name": "CtsCarTestCases"
+    },
+    {
+      "name": "CtsCarHostTestCases"
+    },
+    {
+      "name": "CarSecurityPermissionTest"
+    },
+    {
+      "name": "CarExtendedApiTest"
+    },
+    {
+      "name": "CarHiddenApiTest"
+    }
+  ],
+  "auto-presubmit-all-ui-targets": [
+    {
+      "name": "CarExtendedApiTest"
+    }
+  ],
+  "ravenwood-presubmit": [
+    {
+      "name": "CarLibHostUnitTest",
+      "host": true,
+      "keywords": ["automotive_code_coverage"]
+    }
+  ]
+}

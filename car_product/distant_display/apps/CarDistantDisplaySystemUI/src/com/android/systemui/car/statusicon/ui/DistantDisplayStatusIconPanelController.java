@@ -1,0 +1,79 @@
+/*
+ * Copyright (C) 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.systemui.car.statusicon.ui;
+
+import static com.android.systemui.car.distantdisplay.util.Logging.logIfDebuggable;
+
+import android.view.View;
+
+import com.android.systemui.car.distantdisplay.common.DistantDisplayController;
+import com.android.systemui.car.flexibleui.CarSystemBarElementController;
+import com.android.systemui.car.flexibleui.CarSystemBarElementStateController;
+import com.android.systemui.car.flexibleui.CarSystemBarElementStatusBarDisableController;
+import com.android.systemui.car.systembar.panel.CarSystemBarPanelButtonView;
+import com.android.systemui.car.systembar.panel.CarSystemBarPanelButtonViewController;
+import com.android.systemui.car.systembar.panel.PanelViewController;
+
+import dagger.assisted.Assisted;
+import dagger.assisted.AssistedFactory;
+import dagger.assisted.AssistedInject;
+
+import javax.inject.Provider;
+
+/** Controller for the distant display panel entry point */
+public class DistantDisplayStatusIconPanelController extends CarSystemBarPanelButtonViewController
+        implements DistantDisplayController.StatusChangeListener {
+    public static final String TAG = DistantDisplayStatusIconPanelController.class.getSimpleName();
+    private final DistantDisplayController mDistantDisplayController;
+
+    @AssistedInject
+    protected DistantDisplayStatusIconPanelController(
+            @Assisted CarSystemBarPanelButtonView view,
+            CarSystemBarElementStatusBarDisableController disableController,
+            CarSystemBarElementStateController stateController,
+            Provider<PanelViewController.Factory> statusIconPanelFactoryProvider,
+            DistantDisplayController distantDisplayController) {
+        super(view, disableController, stateController, statusIconPanelFactoryProvider);
+        mDistantDisplayController = distantDisplayController;
+    }
+
+    @AssistedFactory
+    public interface Factory extends
+            CarSystemBarElementController.Factory<CarSystemBarPanelButtonView,
+                    DistantDisplayStatusIconPanelController> {
+    }
+
+    @Override
+    protected void onViewAttached() {
+        super.onViewAttached();
+        logIfDebuggable(TAG, "onViewAttached");
+        mDistantDisplayController.addDistantDisplayControlStatusInfoListener(this);
+    }
+
+    @Override
+    protected void onViewDetached() {
+        super.onViewDetached();
+        logIfDebuggable(TAG, "onViewDetached");
+        mDistantDisplayController.removeDistantDisplayControlStatusInfoListener(this);
+    }
+
+    @Override
+    public void onVisibilityChanged(boolean visible) {
+        logIfDebuggable(TAG, "onVisibilityChanged " + visible);
+        mView.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+}

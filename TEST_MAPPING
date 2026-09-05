@@ -1,0 +1,22 @@
+{
+  "auto-service-experimental-code-presubmit": [
+    {
+      "name": "ExperimentalCarServiceTests"
+    }
+  ],
+  "auto-postsubmit": [
+    {
+      "name": "SampleCustomInputServiceTest"
+    },
+    {
+      "name": "vehicle_binding_integration_test"
+    }
+  ],
+  "ravenwood-presubmit": [
+    {
+      "name": "CarServiceHostUnitTest",
+      "host": true,
+      "keywords": ["automotive_code_coverage"]
+    }
+  ]
+}

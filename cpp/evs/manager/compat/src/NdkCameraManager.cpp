@@ -1,0 +1,145 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "NdkCameraManager.h"
+
+#include <android-base/logging.h>
+
+#include <dlfcn.h>
+
+namespace android::hardware::automotive::evs::compat {
+
+NdkCameraManager::NdkCameraManager() : mManager(ACameraManager_create()) {
+    if (!mManager) {
+        LOG(ERROR) << "Failed to create ACameraManager.";
+        return;
+    }
+
+    // Dynamically load camera sharing and streaming functions
+#ifdef __ANDROID_VNDK__
+    const char* libcamera_ndk_name = "libcamera2ndk_vendor.so";
+#else
+    const char* libcamera_ndk_name = "libcamera2ndk.so";
+#endif
+    void* libcamera_ndk = dlopen(libcamera_ndk_name, RTLD_NOW);
+    if (!libcamera_ndk) {
+        LOG(ERROR) << "Failed to open " << libcamera_ndk_name << ": " << dlerror();
+        return;
+    }
+
+    mOpenSharedCameraFn = reinterpret_cast<ACameraManager_openSharedCamera_fn>(
+            dlsym(libcamera_ndk, "ACameraManager_openSharedCamera"));
+    mIsCameraDeviceSharingSupportedFn =
+            reinterpret_cast<ACameraManager_isCameraDeviceSharingSupported_fn>(
+                    dlsym(libcamera_ndk, "ACameraManager_isCameraDeviceSharingSupported"));
+    mCaptureSessionSharedStartStreamingFn =
+            reinterpret_cast<ACameraCaptureSessionShared_startStreaming_fn>(
+                    dlsym(libcamera_ndk, "ACameraCaptureSessionShared_startStreaming"));
+    mCaptureSessionSharedStopStreamingFn =
+            reinterpret_cast<ACameraCaptureSessionShared_stopStreaming_fn>(
+                    dlsym(libcamera_ndk, "ACameraCaptureSessionShared_stopStreaming"));
+
+    if (!mOpenSharedCameraFn || !mIsCameraDeviceSharingSupportedFn ||
+        !mCaptureSessionSharedStartStreamingFn || !mCaptureSessionSharedStopStreamingFn) {
+        LOG(WARNING) << "Failed to load all camera sharing/streaming symbols.";
+    }
+
+    mLibCameraNdkHandle = libcamera_ndk;
+}
+
+NdkCameraManager::~NdkCameraManager() {
+    if (mLibCameraNdkHandle) {
+        dlclose(mLibCameraNdkHandle);
+        mLibCameraNdkHandle = nullptr;
+    }
+    if (mManager) {
+        ACameraManager_delete(mManager);
+    }
+}
+
+bool NdkCameraManager::isAvailable() {
+    return mManager != nullptr;
+}
+
+camera_status_t NdkCameraManager::getCameraIdList(std::vector<std::string>* idList) {
+    ACameraIdList* cameraIdList = nullptr;
+    camera_status_t status = ACameraManager_getCameraIdList(mManager, &cameraIdList);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "ACameraManager_getCameraIdList failed: " << status;
+        return status;
+    }
+    if (cameraIdList && idList) {
+        for (int i = 0; i < cameraIdList->numCameras; ++i) {
+            idList->push_back(cameraIdList->cameraIds[i]);
+        }
+        ACameraManager_deleteCameraIdList(cameraIdList);
+    }
+    return status;
+}
+
+camera_status_t NdkCameraManager::getCameraCharacteristics(const char* cameraId,
+                                                           ACameraMetadata** metadata) {
+    camera_status_t status = ACameraManager_getCameraCharacteristics(mManager, cameraId, metadata);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "ACameraManager_getCameraCharacteristics failed for camera " << cameraId
+                   << ": " << status;
+    }
+    return status;
+}
+
+ACameraManager* NdkCameraManager::get() {
+    return mManager;
+}
+
+camera_status_t NdkCameraManager::registerAvailabilityCallback(
+        const ACameraManager_AvailabilityCallbacks* callback) {
+    camera_status_t status = ACameraManager_registerAvailabilityCallback(mManager, callback);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "ACameraManager_registerAvailabilityCallback failed: " << status;
+    }
+    return status;
+}
+
+camera_status_t NdkCameraManager::unregisterAvailabilityCallback(
+        const ACameraManager_AvailabilityCallbacks* callback) {
+    camera_status_t status = ACameraManager_unregisterAvailabilityCallback(mManager, callback);
+    if (status != ACAMERA_OK) {
+        LOG(ERROR) << "ACameraManager_unregisterAvailabilityCallback failed: " << status;
+    }
+    return status;
+}
+
+// Accessors for dynamically loaded functions
+ACameraManager_openSharedCamera_fn NdkCameraManager::getOpenSharedCameraFn() {
+    return mOpenSharedCameraFn;
+}
+
+ACameraManager_isCameraDeviceSharingSupported_fn
+NdkCameraManager::getIsCameraDeviceSharingSupportedFn() {
+    return mIsCameraDeviceSharingSupportedFn;
+}
+
+ACameraCaptureSessionShared_startStreaming_fn
+NdkCameraManager::getCaptureSessionSharedStartStreamingFn() {
+    return mCaptureSessionSharedStartStreamingFn;
+}
+
+ACameraCaptureSessionShared_stopStreaming_fn
+NdkCameraManager::getCaptureSessionSharedStopStreamingFn() {
+    return mCaptureSessionSharedStopStreamingFn;
+}
+
+}  // namespace android::hardware::automotive::evs::compat

@@ -1,0 +1,67 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#pragma once
+
+#include "ICameraManager.h"
+
+namespace android::hardware::automotive::evs::compat {
+
+/**
+ * Concrete implementation of the ICameraManager interface that calls the
+ * real NDK camera functions.
+ */
+class NdkCameraManager : public ICameraManager {
+public:
+    NdkCameraManager();
+    ~NdkCameraManager() override;
+
+    // Deleting copy constructor and assignment operator
+    NdkCameraManager(const NdkCameraManager&) = delete;
+    NdkCameraManager& operator=(const NdkCameraManager&) = delete;
+
+    bool isAvailable() override;
+    camera_status_t getCameraIdList(std::vector<std::string>* idList) override;
+    camera_status_t getCameraCharacteristics(const char* cameraId,
+                                             ACameraMetadata** metadata) override;
+
+    ACameraManager* get() override;
+
+    camera_status_t registerAvailabilityCallback(
+            const ACameraManager_AvailabilityCallbacks* callback) override;
+    camera_status_t unregisterAvailabilityCallback(
+            const ACameraManager_AvailabilityCallbacks* callback) override;
+
+    // Accessors for dynamically loaded functions
+    ACameraManager_openSharedCamera_fn getOpenSharedCameraFn() override;
+    ACameraManager_isCameraDeviceSharingSupported_fn getIsCameraDeviceSharingSupportedFn() override;
+    ACameraCaptureSessionShared_startStreaming_fn getCaptureSessionSharedStartStreamingFn()
+            override;
+    ACameraCaptureSessionShared_stopStreaming_fn getCaptureSessionSharedStopStreamingFn() override;
+
+private:
+    ACameraManager* mManager;
+
+    // Function pointers for dynamically loaded symbols
+    ACameraManager_openSharedCamera_fn mOpenSharedCameraFn = nullptr;
+    ACameraManager_isCameraDeviceSharingSupported_fn mIsCameraDeviceSharingSupportedFn = nullptr;
+    ACameraCaptureSessionShared_startStreaming_fn mCaptureSessionSharedStartStreamingFn = nullptr;
+    ACameraCaptureSessionShared_stopStreaming_fn mCaptureSessionSharedStopStreamingFn = nullptr;
+
+    void* mLibCameraNdkHandle = nullptr;
+};
+
+}  // namespace android::hardware::automotive::evs::compat

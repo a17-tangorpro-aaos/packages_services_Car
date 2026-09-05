@@ -1,0 +1,5 @@
+# Project owners
+include platform/packages/services/Car:/OWNERS
+
+# Property
+per-file src/android/car/testapi/*CarProperty*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS

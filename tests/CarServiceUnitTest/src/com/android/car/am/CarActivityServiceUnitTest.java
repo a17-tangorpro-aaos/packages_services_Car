@@ -1,0 +1,280 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.android.car.am;
+
+import static android.car.feature.Flags.FLAG_ROOT_TASK_CLUSTER;
+import static android.car.feature.Flags.FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS;
+import static android.view.Display.DEFAULT_DISPLAY;
+
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import android.app.ActivityManager;
+import android.car.Car;
+import android.car.app.CarActivityManager;
+import android.car.test.NoActiveHandlerThreadCheckerRule;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.os.Binder;
+import android.os.IBinder;
+import android.os.RemoteException;
+import android.os.UserHandle;
+import android.platform.test.annotations.DisableFlags;
+import android.platform.test.annotations.EnableFlags;
+import android.platform.test.flag.junit.SetFlagsRule;
+
+import com.android.car.CarLocalServices;
+import com.android.car.CarServiceHelperWrapper;
+import com.android.car.CarServiceHelperWrapperTimeout;
+import com.android.car.R;
+import com.android.car.am.CarActivityService.RootTaskListener;
+import com.android.car.internal.ICarServiceHelper;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+
+@RunWith(MockitoJUnitRunner.class)
+public class CarActivityServiceUnitTest {
+
+    // Comes from android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER
+    private static final int FEATURE_DEFAULT_TASK_CONTAINER = 1;
+
+    private CarActivityService mRealCarActivityService;
+    private CarActivityService mCarActivityService;
+
+    private final ComponentName mTestActivity = new ComponentName("test.pkg", "test.activity");
+
+    @Rule
+    public NoActiveHandlerThreadCheckerRule mNoActiveHandlerThreadCheckerRule =
+            new NoActiveHandlerThreadCheckerRule();
+    @Rule
+    public TestName mTestName = new TestName();
+    @Rule public final SetFlagsRule mSetFlagsRule = new SetFlagsRule();
+
+    @Mock
+    private Context mContext;
+    @Mock
+    private Resources mMockedResources;
+    @Mock
+    private ICarServiceHelper mICarServiceHelper;
+
+    @Before
+    public void setUp() {
+        doReturn(mMockedResources).when(mContext).getResources();
+        doReturn(false).when(mMockedResources)
+                .getBoolean(R.bool.config_isUsingAutoTaskStackWindowing);
+
+        mRealCarActivityService = new CarActivityService(mContext);
+        mCarActivityService = spy(mRealCarActivityService);
+
+        int nonCurrentUserId = 9999990;
+        boolean isNonCurrentUserTest = mTestName.getMethodName().contains("NonCurrentUser");
+        int callerId = isNonCurrentUserTest ? nonCurrentUserId : UserHandle.USER_SYSTEM;
+        when(mCarActivityService.getCaller()).thenReturn(callerId);
+
+        CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
+        wrapper.setCarServiceHelper(mICarServiceHelper);
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
+        mRealCarActivityService.destroy();
+    }
+
+    @Test
+    public void setPersistentActivityThrowsException_ifICarServiceHelperIsNotSet() {
+        // Remove already create one and reset to not set state.
+        CarServiceHelperWrapperTimeout.createWithImmediateTimeout();
+
+        assertThrows(IllegalStateException.class,
+                () -> mCarActivityService.setPersistentActivity(
+                        mTestActivity, DEFAULT_DISPLAY, FEATURE_DEFAULT_TASK_CONTAINER));
+    }
+
+    @Test
+    public void setPersistentActivityThrowsException_withoutPermission() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mCarActivityService.setPersistentActivity(
+                        mTestActivity, DEFAULT_DISPLAY, FEATURE_DEFAULT_TASK_CONTAINER));
+    }
+
+    @Test
+    public void setPersistentActivityInvokesICarServiceHelper() throws RemoteException {
+        int displayId = 9;
+        int ret = mCarActivityService.setPersistentActivity(
+                mTestActivity, displayId, FEATURE_DEFAULT_TASK_CONTAINER);
+        assertThat(ret).isEqualTo(CarActivityManager.RESULT_SUCCESS);
+
+        ArgumentCaptor<ComponentName> activityCaptor = ArgumentCaptor.forClass(ComponentName.class);
+        ArgumentCaptor<Integer> displayIdCaptor = ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Integer> featureIdCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mICarServiceHelper).setPersistentActivity(
+                activityCaptor.capture(), displayIdCaptor.capture(), featureIdCaptor.capture());
+
+        assertThat(activityCaptor.getValue()).isEqualTo(mTestActivity);
+        assertThat(displayIdCaptor.getValue()).isEqualTo(displayId);
+        assertThat(featureIdCaptor.getValue()).isEqualTo(FEATURE_DEFAULT_TASK_CONTAINER);
+    }
+
+    @Test
+    public void setPersistentActivitiesOnRootTaskThrowsException_withoutPermission() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mCarActivityService.setPersistentActivitiesOnRootTask(
+                        List.of(mTestActivity), new Binder()));
+    }
+
+    @Test
+    public void setPersistentActivitiesOnRootTaskInvokesICarServiceHelper() throws RemoteException {
+        IBinder tempToken = new Binder();
+        mCarActivityService.setPersistentActivitiesOnRootTask(List.of(mTestActivity), tempToken);
+
+        ArgumentCaptor<List<ComponentName>> activityCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<Binder> rootTaskTokenCaptor = ArgumentCaptor.forClass(Binder.class);
+        verify(mICarServiceHelper).setPersistentActivitiesOnRootTask(
+                activityCaptor.capture(), rootTaskTokenCaptor.capture());
+        assertThat(activityCaptor.getValue()).isEqualTo(List.of(mTestActivity));
+        assertThat(rootTaskTokenCaptor.getValue()).isEqualTo(tempToken);
+    }
+
+    @Test
+    public void setPersistentActivityReturnsErrorForNonCurrentUser() throws RemoteException {
+        int ret = mCarActivityService.setPersistentActivity(
+                mTestActivity, DEFAULT_DISPLAY, FEATURE_DEFAULT_TASK_CONTAINER);
+        assertThat(ret).isEqualTo(CarActivityManager.RESULT_INVALID_USER);
+    }
+
+    @Test
+    @EnableFlags({FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS})
+    public void setLaunchBehaviorForRootTask_withoutPermission_throwsException() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+        IBinder token = new Binder();
+
+        assertThrows(SecurityException.class,
+                () -> mCarActivityService.setLaunchBehaviorForRootTask(token,
+                        CarActivityManager.LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK));
+    }
+
+    @Test
+    @EnableFlags({FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS})
+    public void setLaunchBehaviorForRootTask_invokesCarServiceHelper() throws RemoteException {
+        IBinder token = new Binder();
+        int behavior = CarActivityManager.LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK;
+
+        mCarActivityService.setLaunchBehaviorForRootTask(token, behavior);
+
+        ArgumentCaptor<IBinder> tokenCaptor = ArgumentCaptor.forClass(IBinder.class);
+        ArgumentCaptor<Integer> behaviorCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mICarServiceHelper).setLaunchBehaviorForRootTask(
+                tokenCaptor.capture(), behaviorCaptor.capture());
+
+        assertThat(tokenCaptor.getValue()).isEqualTo(token);
+        assertThat(behaviorCaptor.getValue()).isEqualTo(behavior);
+    }
+
+    @Test
+    @DisableFlags({FLAG_ROOT_TASK_STICKY_ROUTING_BEHAVIORS})
+    public void setLaunchBehaviorForRootTask_flagDisabled_doesNothing() throws RemoteException {
+        IBinder token = new Binder();
+        int behavior = CarActivityManager.LAUNCH_BEHAVIOR_REMAIN_IN_SOURCE_ROOT_TASK;
+
+        mCarActivityService.setLaunchBehaviorForRootTask(token, behavior);
+
+        verify(mICarServiceHelper, never()).setLaunchBehaviorForRootTask(any(), anyInt());
+    }
+
+    @Test
+    public void getRootTaskInfo() {
+        String rootTaskName = "TEST_ROOT_TASK_NAME";
+        ActivityManager.RunningTaskInfo runningTaskInfo = new ActivityManager.RunningTaskInfo();
+        mCarActivityService.onRootTaskAppeared(
+                rootTaskName, runningTaskInfo, /* rootTaskToken= */ null);
+
+        assertThat(mCarActivityService.getRootTaskInfo(rootTaskName)).isEqualTo(runningTaskInfo);
+    }
+
+    @Test
+    public void getRootTaskInfo_returnsNullIfNotExist() {
+        ActivityManager.RunningTaskInfo runningTaskInfo = new ActivityManager.RunningTaskInfo();
+        mCarActivityService.onRootTaskAppeared(
+                "TEST_ROOT_TASK_NAME", runningTaskInfo, /* rootTaskToken= */ null);
+
+        assertThat(mCarActivityService.getRootTaskInfo("NOT_EXISTING_ROOT_TASK")).isNull();
+    }
+
+    @Test
+    @EnableFlags({FLAG_ROOT_TASK_CLUSTER})
+    public void registerRootTaskListener() {
+        RootTaskListener mockListener = mock(RootTaskListener.class);
+        mCarActivityService.registerRootTaskListener(mockListener);
+        String rootTaskName = "TEST_ROOT_TASK_NAME";
+        ActivityManager.RunningTaskInfo runningTaskInfo = new ActivityManager.RunningTaskInfo();
+
+        mCarActivityService.onRootTaskAppeared(
+                rootTaskName, runningTaskInfo, /* rootTaskToken= */ null);
+        verify(mockListener).onRootTaskAppeared(rootTaskName);
+
+        mCarActivityService.onRootTaskVanished(runningTaskInfo.getTaskId());
+        verify(mockListener).onRootTaskVanished(rootTaskName);
+    }
+
+    @Test
+    @EnableFlags({FLAG_ROOT_TASK_CLUSTER})
+    public void unregisterRootTaskListener() {
+        RootTaskListener mockListener = mock(RootTaskListener.class);
+        mCarActivityService.registerRootTaskListener(mockListener);
+        mCarActivityService.unregisterRootTaskListener(mockListener);
+        ActivityManager.RunningTaskInfo runningTaskInfo = new ActivityManager.RunningTaskInfo();
+
+        mCarActivityService.onRootTaskAppeared(
+                "rootTaskName", runningTaskInfo, /* rootTaskToken= */ null);
+        verifyNoInteractions(mockListener);
+
+        mCarActivityService.onRootTaskVanished(runningTaskInfo.getTaskId());
+        verifyNoInteractions(mockListener);
+    }
+}

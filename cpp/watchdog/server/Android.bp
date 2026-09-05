@@ -1,0 +1,242 @@
+// Copyright (C) 2020 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package {
+    default_team: "trendy_team_aaos_framework",
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_defaults {
+    name: "pilot_carwatchdogd_defaults",
+    generated_headers: [
+        "gen-native-dump-proto-headers",
+        "gen-native-dump-cppstream-proto-headers",
+    ],
+    shared_libs: [
+        "libmeminfo",
+        "libpsi",
+        "server_configurable_flags",
+    ],
+    static_libs: [
+        "android.car.feature-aconfig-cpp",
+        "libvhalclient",
+        "libwatchdog_properties",
+    ],
+    defaults: [
+        "aconfig_lib_cc_shared_link.defaults",
+        "watchdogdbase_defaults",
+        "vhalclient_defaults",
+    ],
+}
+
+cc_library {
+    name: "libpilotwatchdog_perf_service",
+    defaults: [
+        "pilot_carwatchdogd_defaults",
+        "libwatchdogbase_service_manager_defaults",
+        "libwatchdogbase_io_overuse_monitor_defaults",
+    ],
+    srcs: [
+        "src/IoOveruseMonitor.cpp",
+        "src/PerformanceProfiler.cpp",
+        "src/PressureMonitor.cpp",
+        "src/ProcStatCollector.cpp",
+        "src/UidCpuStatsCollector.cpp",
+        "src/UidProcStatsCollector.cpp",
+        "src/UidStatsCollector.cpp",
+        "src/WatchdogPerfService.cpp",
+    ],
+    static_libs: [
+        "libwatchdogbase_looper_wrapper",
+    ],
+    export_include_dirs: [
+        "src",
+    ],
+    target: {
+        android: {
+            proto: {
+                type: "lite",
+            },
+            shared_libs: [
+                "libprotobuf-cpp-full",
+            ],
+        },
+    },
+}
+
+cc_test {
+    name: "libpilotwatchdog_test",
+    team: "trendy_team_aaos_performance_triage",
+    defaults: [
+        "pilot_carwatchdogd_defaults",
+        "libwatchdogbase_service_manager_defaults",
+        "libwatchdogbase_io_overuse_monitor_defaults",
+        "libpilotwatchdog_process_service_defaults",
+        "libpilotwatchdog_service_manager_defaults",
+    ],
+    generated_sources: ["gen-native-dump-proto-srcs"],
+    test_suites: [
+        "general-tests",
+        "automotive-general-tests",
+    ],
+    tidy_timeout_srcs: [
+        "tests/WatchdogServiceHelperTest.cpp",
+    ],
+    srcs: [
+        "tests/PerformanceProfilerTest.cpp",
+        "tests/PressureMonitorTest.cpp",
+        "tests/ProcPidDir.cpp",
+        "tests/ProcStatCollectorTest.cpp",
+        "tests/ThreadPriorityControllerTest.cpp",
+        "tests/UidProcStatsCollectorTest.cpp",
+        "tests/UidCpuStatsCollectorTest.cpp",
+        "tests/UidStatsCollectorTest.cpp",
+        "tests/WatchdogBinderMediatorTest.cpp",
+        "tests/WatchdogInternalHandlerTest.cpp",
+        "tests/WatchdogPerfServiceTest.cpp",
+        "tests/WatchdogProcessServiceTest.cpp",
+        "tests/WatchdogServiceHelperTest.cpp",
+    ],
+    static_libs: [
+        "android.hardware.automotive.vehicle@2.0",
+        "libgmock",
+        "libgtest",
+        "libpilotwatchdog_binder_mediator",
+        "libpilotwatchdog_perf_service",
+        "libpilotwatchdog_process_service",
+        "libpilotwatchdog_service_manager",
+        "libwatchdogbase_service_manager",
+        "libwatchdogbase_test_utils",
+    ],
+    target: {
+        android: {
+            proto: {
+                type: "lite",
+            },
+            shared_libs: [
+                "libprotobuf-cpp-full",
+            ],
+        },
+    },
+    header_libs: [
+        "libwatchdogbase_test_headers",
+    ],
+}
+
+cc_defaults {
+    name: "libpilotwatchdog_process_service_defaults",
+    shared_libs: [
+        "libhidlbase",
+    ],
+}
+
+cc_library_static {
+    name: "libpilotwatchdog_process_service",
+    srcs: [
+        "src/WatchdogProcessService.cpp",
+    ],
+    defaults: [
+        "pilot_carwatchdogd_defaults",
+        "libwatchdogbase_service_manager_defaults",
+        "libpilotwatchdog_process_service_defaults",
+    ],
+    shared_libs: [
+        "android.hardware.automotive.vehicle@2.0",
+    ],
+}
+
+cc_library {
+    name: "libpilotwatchdog_binder_mediator",
+    defaults: [
+        "pilot_carwatchdogd_defaults",
+        "libwatchdogbase_service_manager_defaults",
+        "libwatchdogbase_io_overuse_monitor_defaults",
+        "libpilotwatchdog_process_service_defaults",
+    ],
+    srcs: [
+        "src/ThreadPriorityController.cpp",
+        "src/WatchdogBinderMediator.cpp",
+        "src/WatchdogInternalHandler.cpp",
+        "src/WatchdogServiceHelper.cpp",
+    ],
+    shared_libs: [
+        "android.hardware.automotive.vehicle@2.0",
+    ],
+    static_libs: [
+        "libpilotwatchdog_perf_service",
+        "libpilotwatchdog_process_service",
+    ],
+    export_include_dirs: [
+        "src",
+    ],
+}
+
+cc_defaults {
+    name: "libpilotwatchdog_service_manager_defaults",
+    defaults: [
+        "libwatchdogbase_service_manager_defaults",
+        "libwatchdogbase_io_overuse_monitor_defaults",
+        "libpilotwatchdog_process_service_defaults",
+    ],
+    static_libs: [
+        "libpilotwatchdog_binder_mediator",
+        "libpilotwatchdog_perf_service",
+        "libpilotwatchdog_process_service",
+    ],
+}
+
+cc_library {
+    name: "libpilotwatchdog_service_manager",
+    defaults: [
+        "pilot_carwatchdogd_defaults",
+        "libpilotwatchdog_service_manager_defaults",
+    ],
+    srcs: [
+        "src/ServiceManager.cpp",
+    ],
+}
+
+vintf_fragment {
+    name: "pilot_carwatchdogd.xml",
+    src: "pilot_carwatchdogd.xml",
+}
+
+// TODO(b/446201877): Rename to carwatchdogd
+cc_binary {
+    name: "pilot_carwatchdogd",
+    stem: "carwatchdogd",
+    defaults: [
+        "pilot_carwatchdogd_defaults",
+        "libpilotwatchdog_service_manager_defaults",
+    ],
+    srcs: [
+        "src/main.cpp",
+    ],
+    enabled: select(release_flag("RELEASE_CAR_FRAMEWORK_WATCHDOG_FLASHMEMORY_REFACTOR"), {
+        true: true,
+        default: false,
+    }),
+    init_rc: ["pilot_carwatchdogd.rc"],
+    shared_libs: [
+        "android.hardware.automotive.vehicle@2.0",
+    ],
+    static_libs: [
+        "libpilotwatchdog_service_manager",
+    ],
+    vintf_fragment_modules: ["pilot_carwatchdogd.xml"],
+    required: [
+        "system_resource_overuse_configuration.xml",
+        "third_party_resource_overuse_configuration.xml",
+    ],
+}

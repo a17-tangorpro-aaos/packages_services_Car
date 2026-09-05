@@ -1,0 +1,9 @@
+# Bug component: 1316886
+
+# Property
+per-file src/android/car/extendedapitest/CarProperty* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/android/car/extendedapitest/VehiclePropertyIdsTest.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+
+# System
+per-file src/com/android/car/internal/* = hubertmis@google.com
+per-file test_aidl/android/car/apitest/* = hubertmis@google.com

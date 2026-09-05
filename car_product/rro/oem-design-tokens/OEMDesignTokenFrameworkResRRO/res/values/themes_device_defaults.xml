@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2024 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!--
+    This is an override of frameworks/base/core/res/res/values/themes_device_default.xml
+    It is how the device default is changed to match the desired look for a car theme.
+-->
+<resources>
+    <style name="Theme.DeviceDefaultBaseCar" parent="*android:Theme.DeviceDefaultBase">
+        <item name="android:windowBackgroundFallback">?oemColorSurface</item>
+        <item name="android:windowBackground">?oemColorSurface</item>
+        <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+        <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorBackground">?oemColorSurface</item>
+        <item name="android:colorBackgroundFloating">?oemColorSurface</item>
+        <item name="android:colorButtonNormal">@color/btn_device_default</item>
+        <item name="android:colorActivatedHighlight">?oemColorPrimaryContainer</item>
+        <item name="android:colorControlActivated">?oemColorSecondaryContainer</item>
+        <item name="android:colorControlHighlight">@color/car_control_highlight</item>
+        <item name="android:colorControlNormal">@color/btn_device_default</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorForeground">?oemColorOnSurface</item>
+        <item name="android:editTextColor">?oemColorOnSurface</item>
+        <item name="android:listPreferredItemHeightSmall">@*android:dimen/car_single_line_list_item_height</item>
+        <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:textColorHint">@*android:color/car_body2</item>
+        <item name="android:textColorPrimary">?oemColorOnSurface</item>
+        <item name="android:textColorPrimaryDisableOnly">?oemColorOnSurface</item>
+        <item name="android:textColorPrimaryInverse">?oemColorSurface</item>
+        <item name="android:textColorSecondary">?oemColorOnSurfaceVariant</item>
+        <item name="android:textColorSecondaryInverse">?oemColorSurfaceVariant</item>
+        <item name="android:textColorTertiary">?oemColorSecondary</item>
+        <item name="android:textColorTertiaryInverse">?oemColorOnSecondary</item>
+        <item name="android:textColorLink">?oemColorOnSurfaceInverse</item>
+        <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
+        <item name="android:actionBarSize">@*android:dimen/car_app_bar_height</item>
+        <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
+        <item name="oemColorPrimary">@color/color_primary</item>
+        <item name="oemColorOnPrimary">@color/color_on_primary</item>
+        <item name="oemColorPrimaryContainer">@color/color_primary_container</item>
+        <item name="oemColorOnPrimaryContainer">@color/color_on_primary_container</item>
+        <item name="oemColorSecondary">@color/color_secondary</item>
+        <item name="oemColorOnSecondary">@color/color_on_secondary</item>
+        <item name="oemColorSecondaryContainer">@color/color_secondary_container</item>
+        <item name="oemColorOnSecondaryContainer">@color/color_on_secondary_container</item>
+        <item name="oemColorTertiary">@color/color_tertiary</item>
+        <item name="oemColorError">@color/color_error</item>
+        <item name="oemColorSurface">@color/color_surface</item>
+        <item name="oemColorOnSurface">@color/color_on_surface</item>
+        <item name="oemColorSurfaceVariant">@color/color_surface_variant</item>
+        <item name="oemColorOnSurfaceVariant">@color/color_on_surface_variant</item>
+        <item name="oemColorSurfaceInverse">@color/color_surface_inverse</item>
+        <item name="oemColorOnSurfaceInverse">@color/color_on_surface_inverse</item>
+        <item name="oemColorOutline">@color/color_outline</item>
+        <item name="oemColorSurfaceContainerLow">@color/color_surface_container_low</item>
+        <item name="oemColorSurfaceContainerHighest">@color/color_surface_container_highest</item>
+        <item name="oemColorSecondaryPalette80">@color/color_secondary_palette_80</item>
+        <item name="oemColorNeutralPalette40">@color/color_neutral_palette_40</item>
+        <item name="oemColorNeutralVariantPalette60">@color/color_neutral_variant_palette_60</item>
+        <item name="oemColorErrorContainer">@color/color_error_container</item>
+        <item name="oemColorOnError">@color/color_on_error</item>
+        <item name="oemColorOnErrorContainer">@color/color_on_error_container</item>
+        <item name="oemColorOnTertiary">@color/color_on_tertiary</item>
+        <item name="oemColorOnTertiaryContainer">@color/color_on_tertiary_container</item>
+        <item name="oemColorOutlineVariant">@color/color_outline_variant</item>
+        <item name="oemColorScrim">@color/color_scrim</item>
+        <item name="oemColorSurfaceBright">@color/color_surface_bright</item>
+        <item name="oemColorSurfaceContainer">@color/color_surface_container</item>
+        <item name="oemColorSurfaceContainerHigh">@color/color_surface_container_high</item>
+        <item name="oemColorSurfaceContainerLowest">@color/color_surface_container_lowest</item>
+        <item name="oemColorSurfaceDim">@color/color_surface_dim</item>
+        <item name="oemColorSurfaceTint">@color/color_surface_tint</item>
+        <item name="oemColorTertiaryContainer">@color/color_tertiary_container</item>
+        <item name="oemTextAppearanceDisplayLarge">@style/TextAppearance.Display.Large</item>
+        <item name="oemTextAppearanceDisplayMedium">@style/TextAppearance.Display.Medium</item>
+        <item name="oemTextAppearanceDisplaySmall">@style/TextAppearance.Display.Small</item>
+        <item name="oemTextAppearanceHeadlineLarge">@style/TextAppearance.Headline.Large</item>
+        <item name="oemTextAppearanceHeadlineMedium">@style/TextAppearance.Headline.Medium</item>
+        <item name="oemTextAppearanceHeadlineSmall">@style/TextAppearance.Headline.Small</item>
+        <item name="oemTextAppearanceTitleLarge">@style/TextAppearance.Title.Large</item>
+        <item name="oemTextAppearanceTitleMedium">@style/TextAppearance.Title.Medium</item>
+        <item name="oemTextAppearanceTitleSmall">@style/TextAppearance.Title.Small</item>
+        <item name="oemTextAppearanceLabelLarge">@style/TextAppearance.Label.Large</item>
+        <item name="oemTextAppearanceLabelMedium">@style/TextAppearance.Label.Medium</item>
+        <item name="oemTextAppearanceLabelSmall">@style/TextAppearance.Label.Small</item>
+        <item name="oemTextAppearanceBodyLarge">@style/TextAppearance.Body.Large</item>
+        <item name="oemTextAppearanceBodyMedium">@style/TextAppearance.Body.Medium</item>
+        <item name="oemTextAppearanceBodySmall">@style/TextAppearance.Body.Small</item>
+        <item name="oemShapeCornerNone">@dimen/shape_corner_none</item>
+        <item name="oemShapeCornerExtraSmall">@dimen/shape_corner_extra_small</item>
+        <item name="oemShapeCornerSmall">@dimen/shape_corner_small</item>
+        <item name="oemShapeCornerMedium">@dimen/shape_corner_medium</item>
+        <item name="oemShapeCornerLarge">@dimen/shape_corner_large</item>
+        <item name="oemShapeCornerExtraLarge">@dimen/shape_corner_extra_large</item>
+        <item name="oemShapeCornerFull">@dimen/shape_corner_full</item>
+        <item name="oemColorPrimaryPalette100">@color/color_primary_palette_100</item>
+        <item name="oemColorPrimaryPalette99">@color/color_primary_palette_99</item>
+        <item name="oemColorPrimaryPalette95">@color/color_primary_palette_95</item>
+        <item name="oemColorPrimaryPalette90">@color/color_primary_palette_90</item>
+        <item name="oemColorPrimaryPalette80">@color/color_primary_palette_80</item>
+        <item name="oemColorPrimaryPalette70">@color/color_primary_palette_70</item>
+        <item name="oemColorPrimaryPalette60">@color/color_primary_palette_60</item>
+        <item name="oemColorPrimaryPalette50">@color/color_primary_palette_50</item>
+        <item name="oemColorPrimaryPalette40">@color/color_primary_palette_40</item>
+        <item name="oemColorPrimaryPalette30">@color/color_primary_palette_30</item>
+        <item name="oemColorPrimaryPalette20">@color/color_primary_palette_20</item>
+        <item name="oemColorPrimaryPalette10">@color/color_primary_palette_10</item>
+        <item name="oemColorPrimaryPalette0">@color/color_primary_palette_0</item>
+        <item name="oemColorSecondaryPalette100">@color/color_secondary_palette_100</item>
+        <item name="oemColorSecondaryPalette99">@color/color_secondary_palette_99</item>
+        <item name="oemColorSecondaryPalette95">@color/color_secondary_palette_95</item>
+        <item name="oemColorSecondaryPalette90">@color/color_secondary_palette_90</item>
+        <item name="oemColorSecondaryPalette80">@color/color_secondary_palette_80</item>
+        <item name="oemColorSecondaryPalette70">@color/color_secondary_palette_70</item>
+        <item name="oemColorSecondaryPalette60">@color/color_secondary_palette_60</item>
+        <item name="oemColorSecondaryPalette50">@color/color_secondary_palette_50</item>
+        <item name="oemColorSecondaryPalette40">@color/color_secondary_palette_40</item>
+        <item name="oemColorSecondaryPalette30">@color/color_secondary_palette_30</item>
+        <item name="oemColorSecondaryPalette20">@color/color_secondary_palette_20</item>
+        <item name="oemColorSecondaryPalette10">@color/color_secondary_palette_10</item>
+        <item name="oemColorSecondaryPalette0">@color/color_secondary_palette_0</item>
+        <item name="oemColorTertiaryPalette100">@color/color_tertiary_palette_100</item>
+        <item name="oemColorTertiaryPalette99">@color/color_tertiary_palette_99</item>
+        <item name="oemColorTertiaryPalette95">@color/color_tertiary_palette_95</item>
+        <item name="oemColorTertiaryPalette90">@color/color_tertiary_palette_90</item>
+        <item name="oemColorTertiaryPalette80">@color/color_tertiary_palette_80</item>
+        <item name="oemColorTertiaryPalette70">@color/color_tertiary_palette_70</item>
+        <item name="oemColorTertiaryPalette60">@color/color_tertiary_palette_60</item>
+        <item name="oemColorTertiaryPalette50">@color/color_tertiary_palette_50</item>
+        <item name="oemColorTertiaryPalette40">@color/color_tertiary_palette_40</item>
+        <item name="oemColorTertiaryPalette30">@color/color_tertiary_palette_30</item>
+        <item name="oemColorTertiaryPalette20">@color/color_tertiary_palette_20</item>
+        <item name="oemColorTertiaryPalette10">@color/color_tertiary_palette_10</item>
+        <item name="oemColorTertiaryPalette0">@color/color_tertiary_palette_0</item>
+        <item name="oemColorErrorPalette100">@color/color_error_palette_100</item>
+        <item name="oemColorErrorPalette99">@color/color_error_palette_99</item>
+        <item name="oemColorErrorPalette95">@color/color_error_palette_95</item>
+        <item name="oemColorErrorPalette90">@color/color_error_palette_90</item>
+        <item name="oemColorErrorPalette80">@color/color_error_palette_80</item>
+        <item name="oemColorErrorPalette70">@color/color_error_palette_70</item>
+        <item name="oemColorErrorPalette60">@color/color_error_palette_60</item>
+        <item name="oemColorErrorPalette50">@color/color_error_palette_50</item>
+        <item name="oemColorErrorPalette40">@color/color_error_palette_40</item>
+        <item name="oemColorErrorPalette30">@color/color_error_palette_30</item>
+        <item name="oemColorErrorPalette20">@color/color_error_palette_20</item>
+        <item name="oemColorErrorPalette10">@color/color_error_palette_10</item>
+        <item name="oemColorErrorPalette0">@color/color_error_palette_0</item>
+        <item name="oemColorNeutralPalette100">@color/color_neutral_palette_100</item>
+        <item name="oemColorNeutralPalette99">@color/color_neutral_palette_99</item>
+        <item name="oemColorNeutralPalette95">@color/color_neutral_palette_95</item>
+        <item name="oemColorNeutralPalette90">@color/color_neutral_palette_90</item>
+        <item name="oemColorNeutralPalette80">@color/color_neutral_palette_80</item>
+        <item name="oemColorNeutralPalette70">@color/color_neutral_palette_70</item>
+        <item name="oemColorNeutralPalette60">@color/color_neutral_palette_60</item>
+        <item name="oemColorNeutralPalette50">@color/color_neutral_palette_50</item>
+        <item name="oemColorNeutralPalette40">@color/color_neutral_palette_40</item>
+        <item name="oemColorNeutralPalette30">@color/color_neutral_palette_30</item>
+        <item name="oemColorNeutralPalette20">@color/color_neutral_palette_20</item>
+        <item name="oemColorNeutralPalette10">@color/color_neutral_palette_10</item>
+        <item name="oemColorNeutralPalette0">@color/color_neutral_palette_0</item>
+        <item name="oemColorNeutralVariantPalette100">@color/color_neutral_variant_palette_100</item>
+        <item name="oemColorNeutralVariantPalette99">@color/color_neutral_variant_palette_99</item>
+        <item name="oemColorNeutralVariantPalette95">@color/color_neutral_variant_palette_95</item>
+        <item name="oemColorNeutralVariantPalette90">@color/color_neutral_variant_palette_90</item>
+        <item name="oemColorNeutralVariantPalette80">@color/color_neutral_variant_palette_80</item>
+        <item name="oemColorNeutralVariantPalette70">@color/color_neutral_variant_palette_70</item>
+        <item name="oemColorNeutralVariantPalette60">@color/color_neutral_variant_palette_60</item>
+        <item name="oemColorNeutralVariantPalette50">@color/color_neutral_variant_palette_50</item>
+        <item name="oemColorNeutralVariantPalette40">@color/color_neutral_variant_palette_40</item>
+        <item name="oemColorNeutralVariantPalette30">@color/color_neutral_variant_palette_30</item>
+        <item name="oemColorNeutralVariantPalette20">@color/color_neutral_variant_palette_20</item>
+        <item name="oemColorNeutralVariantPalette10">@color/color_neutral_variant_palette_10</item>
+        <item name="oemColorNeutralVariantPalette0">@color/color_neutral_variant_palette_0</item>
+    </style>
+
+    <style name="Theme.DeviceDefault" parent="Theme.DeviceDefaultBaseCar">
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Dialog" parent="android:Theme.Material.Dialog">
+        <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceLargeInverse">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMediumInverse">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmallInverse">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
+        <item name="android:alertDialogStyle">@*android:style/AlertDialog.DeviceDefault</item>
+        <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+        <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:buttonBarPositiveButtonStyle">@*android:style/Widget.DeviceDefault.Button.Colored</item>
+        <item name="android:buttonBarNegativeButtonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:buttonBarNeutralButtonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundFloating">?oemColorSurface</item>
+        <item name="android:colorButtonNormal">@color/btn_device_default</item>
+        <item name="android:colorControlHighlight">@color/car_control_highlight</item>
+        <item name="android:colorControlNormal">@color/btn_device_default</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorForeground">?oemColorOnSurface</item>
+        <item name="android:editTextColor">?oemColorOnSurface</item>
+        <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
+        <item name="android:textColorHint">@*android:color/car_body2</item>
+        <item name="android:textColorPrimary">?oemColorOnSurface</item>
+        <item name="android:textColorPrimaryDisableOnly">?oemColorOnSurface</item>
+        <item name="android:textColorAlertDialogListItem">?oemColorOnSurface</item>
+        <item name="android:textColorPrimaryInverse">?oemColorSurface</item>
+        <item name="android:textColorSecondary">?oemColorSecondary</item>
+        <item name="android:textColorSecondaryInverse">?oemColorOnSecondary</item>
+        <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Dialog.NoActionBar" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Dialog.Alert" parent="android:Theme.Material.Dialog.Alert">
+        <item name="android:textAppearanceLarge">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceMedium">?oemTextAppearanceBodyMedium</item>
+        <item name="android:textAppearanceSmall">?oemTextAppearanceBodySmall</item>
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
+        <item name="android:alertDialogStyle">@*android:style/AlertDialog.DeviceDefault</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+        <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundFloating">@android:color/transparent</item>
+        <item name="android:colorButtonNormal">@color/btn_device_default</item>
+        <item name="android:colorControlHighlight">@color/car_control_highlight</item>
+        <item name="android:colorControlNormal">@color/btn_device_default</item>
+        <item name="android:colorControlActivated">?oemColorSecondaryContainer</item>
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorForeground">?oemColorOnSurface</item>
+        <item name="android:editTextColor">?oemColorOnSurface</item>
+        <item name="android:listPreferredItemHeightSmall">@*android:dimen/car_single_line_list_item_height</item>
+        <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
+        <item name="android:textColorHint">@*android:color/car_body2</item>
+        <item name="android:textColorPrimary">?oemColorOnSurface</item>
+        <item name="android:textColorPrimaryDisableOnly">?oemColorOnSurface</item>
+        <item name="android:textColorSecondary">?oemColorSecondary</item>
+        <item name="android:textColorAlertDialogListItem">?oemColorOnSurface</item>
+        <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
+        <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
+        <item name="android:windowMinWidthMajor">@dimen/car_dialog_min_width_major</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Settings.Dialog" parent="android:Theme.DeviceDefault.Dialog.Alert">
+    </style>
+
+    <!-- The light theme is defined to be the same as the default since currently there is only one
+        defined theme palette -->
+    <style name="Theme.DeviceDefault.Light" parent="android:Theme.DeviceDefault">
+        <item name="android:switchStyle">@style/Widget.DeviceDefault.Light.CompoundButton.Switch</item>
+        <item name="*android:disabledAlpha">@dimen/car_disabled_alpha</item>
+        <!--  To simulate transparency over light (white) background, we don't need a selector. -->
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
+    </style>
+    <style name="Theme.DeviceDefault.Light.Dialog" parent="android:Theme.DeviceDefault.Dialog"/>
+    <style name="Theme.DeviceDefault.Light.Dialog.Alert" parent="android:Theme.DeviceDefault.Dialog.Alert"/>
+    <style name="Theme.DeviceDefault.Light.Dialog.NoActionBar" parent="android:Theme.DeviceDefault.Dialog.NoActionBar"/>
+
+    <style name="Theme.DeviceDefault.Light.NoActionBar" parent="android:Theme.DeviceDefault.Light">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
+    </style>
+    <style name="Theme.DeviceDefault.NoActionBar" parent="android:Theme.DeviceDefault">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.InputMethod" parent="android:Theme.Material.InputMethod">
+        <!-- Color palette -->
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorBackground">?oemColorSurface</item>
+        <item name="android:listDivider">?oemColorOutline</item>
+        <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
+        <item name="android:textColorPrimary">?oemColorOnSurface</item>
+        <item name="android:textColorSecondary">?oemColorOnSurfaceVariant</item>
+        <item name="android:textColorLink">?oemColorOnSurfaceVariant</item>
+
+        <!-- Add default mappings as theme may be used without default app theme -->
+        <item name="oemColorPrimary">@color/color_primary</item>
+        <item name="oemColorSurface">@color/color_surface</item>
+        <item name="oemColorOnSurface">@color/color_on_surface</item>
+        <item name="oemColorOnSurfaceVariant">@color/color_on_surface_variant</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Settings" parent="android:Theme.DeviceDefault"/>
+    <style name="Theme.DeviceDefault.Settings.NoActionBar" parent="android:Theme.DeviceDefault.NoActionBar"/>
+
+    <!-- This theme is applied as the app base. Attributes not defined in app/ activity themes will fallthrough to this
+    theme. This makes it app facing, regardless if the app is directly using it or a theme that inherits from it.  -->
+    <style name="Theme.DeviceDefault.Light.DarkActionBar"  parent="Theme.DeviceDefaultBaseCar">
+        <item name="android:isLightTheme">@bool/is_light_theme</item>
+    </style>
+
+    <style name="OemThemeOverlay">
+        <item name="oemColorPrimary">?com.android.oem.tokens:attr/colorPrimary</item>
+        <item name="oemColorOnPrimary">?com.android.oem.tokens:attr/colorOnPrimary</item>
+        <item name="oemColorPrimaryContainer">?com.android.oem.tokens:attr/colorPrimaryContainer</item>
+        <item name="oemColorOnPrimaryContainer">?com.android.oem.tokens:attr/colorOnPrimaryContainer</item>
+        <item name="oemColorSecondary">?com.android.oem.tokens:attr/colorSecondary</item>
+        <item name="oemColorOnSecondary">?com.android.oem.tokens:attr/colorOnSecondary</item>
+        <item name="oemColorSecondaryContainer">?com.android.oem.tokens:attr/colorSecondaryContainer</item>
+        <item name="oemColorOnSecondaryContainer">?com.android.oem.tokens:attr/colorOnSecondaryContainer</item>
+        <item name="oemColorTertiary">?com.android.oem.tokens:attr/colorTertiary</item>
+        <item name="oemColorError">?com.android.oem.tokens:attr/colorError</item>
+        <item name="oemColorSurface">?com.android.oem.tokens:attr/colorSurface</item>
+        <item name="oemColorOnSurface">?com.android.oem.tokens:attr/colorOnSurface</item>
+        <item name="oemColorSurfaceVariant">?com.android.oem.tokens:attr/colorSurfaceVariant</item>
+        <item name="oemColorOnSurfaceVariant">?com.android.oem.tokens:attr/colorOnSurfaceVariant</item>
+        <item name="oemColorSurfaceInverse">?com.android.oem.tokens:attr/colorSurfaceInverse</item>
+        <item name="oemColorOnSurfaceInverse">?com.android.oem.tokens:attr/colorOnSurfaceInverse</item>
+        <item name="oemColorOutline">?com.android.oem.tokens:attr/colorOutline</item>
+        <item name="oemColorSurfaceContainerLow">?com.android.oem.tokens:attr/colorSurfaceContainerLow</item>
+        <item name="oemColorSurfaceContainerHighest">?com.android.oem.tokens:attr/colorSurfaceContainerHighest</item>
+        <item name="oemColorSecondaryPalette80">?com.android.oem.tokens:attr/colorSecondaryPalette80</item>
+        <item name="oemColorNeutralPalette40">?com.android.oem.tokens:attr/colorNeutralPalette40</item>
+        <item name="oemColorNeutralVariantPalette60">?com.android.oem.tokens:attr/colorNeutralVariantPalette60</item>
+        <item name="oemColorErrorContainer">?com.android.oem.tokens:attr/colorErrorContainer</item>
+        <item name="oemColorOnError">?com.android.oem.tokens:attr/colorOnError</item>
+        <item name="oemColorOnErrorContainer">?com.android.oem.tokens:attr/colorOnErrorContainer</item>
+        <item name="oemColorOnTertiary">?com.android.oem.tokens:attr/colorOnTertiary</item>
+        <item name="oemColorOnTertiaryContainer">?com.android.oem.tokens:attr/colorOnTertiaryContainer</item>
+        <item name="oemColorOutlineVariant">?com.android.oem.tokens:attr/colorOutlineVariant</item>
+        <item name="oemColorScrim">?com.android.oem.tokens:attr/colorScrim</item>
+        <item name="oemColorSurfaceBright">?com.android.oem.tokens:attr/colorSurfaceBright</item>
+        <item name="oemColorSurfaceContainer">?com.android.oem.tokens:attr/colorSurfaceContainer</item>
+        <item name="oemColorSurfaceContainerHigh">?com.android.oem.tokens:attr/colorSurfaceContainerHigh</item>
+        <item name="oemColorSurfaceContainerLowest">?com.android.oem.tokens:attr/colorSurfaceContainerLowest</item>
+        <item name="oemColorSurfaceDim">?com.android.oem.tokens:attr/colorSurfaceDim</item>
+        <item name="oemColorSurfaceTint">?com.android.oem.tokens:attr/colorSurfaceTint</item>
+        <item name="oemColorTertiaryContainer">?com.android.oem.tokens:attr/colorTertiaryContainer</item>
+        <item name="oemTextAppearanceDisplayLarge">?com.android.oem.tokens:attr/textAppearanceDisplayLarge</item>
+        <item name="oemTextAppearanceDisplayMedium">?com.android.oem.tokens:attr/textAppearanceDisplayMedium</item>
+        <item name="oemTextAppearanceDisplaySmall">?com.android.oem.tokens:attr/textAppearanceDisplaySmall</item>
+        <item name="oemTextAppearanceHeadlineLarge">?com.android.oem.tokens:attr/textAppearanceHeadlineLarge</item>
+        <item name="oemTextAppearanceHeadlineMedium">?com.android.oem.tokens:attr/textAppearanceHeadlineMedium</item>
+        <item name="oemTextAppearanceHeadlineSmall">?com.android.oem.tokens:attr/textAppearanceHeadlineSmall</item>
+        <item name="oemTextAppearanceTitleLarge">?com.android.oem.tokens:attr/textAppearanceTitleLarge</item>
+        <item name="oemTextAppearanceTitleMedium">?com.android.oem.tokens:attr/textAppearanceTitleMedium</item>
+        <item name="oemTextAppearanceTitleSmall">?com.android.oem.tokens:attr/textAppearanceTitleSmall</item>
+        <item name="oemTextAppearanceLabelLarge">?com.android.oem.tokens:attr/textAppearanceLabelLarge</item>
+        <item name="oemTextAppearanceLabelMedium">?com.android.oem.tokens:attr/textAppearanceLabelMedium</item>
+        <item name="oemTextAppearanceLabelSmall">?com.android.oem.tokens:attr/textAppearanceLabelSmall</item>
+        <item name="oemTextAppearanceBodyLarge">?com.android.oem.tokens:attr/textAppearanceBodyLarge</item>
+        <item name="oemTextAppearanceBodyMedium">?com.android.oem.tokens:attr/textAppearanceBodyMedium</item>
+        <item name="oemTextAppearanceBodySmall">?com.android.oem.tokens:attr/textAppearanceBodySmall</item>
+        <item name="oemShapeCornerNone">?com.android.oem.tokens:attr/shapeCornerNone</item>
+        <item name="oemShapeCornerExtraSmall">?com.android.oem.tokens:attr/shapeCornerExtraSmall</item>
+        <item name="oemShapeCornerSmall">?com.android.oem.tokens:attr/shapeCornerSmall</item>
+        <item name="oemShapeCornerMedium">?com.android.oem.tokens:attr/shapeCornerMedium</item>
+        <item name="oemShapeCornerLarge">?com.android.oem.tokens:attr/shapeCornerLarge</item>
+        <item name="oemShapeCornerExtraLarge">?com.android.oem.tokens:attr/shapeCornerExtraLarge</item>
+        <item name="oemShapeCornerFull">?com.android.oem.tokens:attr/shapeCornerFull</item>
+        <item name="oemColorPrimaryPalette100">?com.android.oem.tokens:attr/colorPrimaryPalette100</item>
+        <item name="oemColorPrimaryPalette99">?com.android.oem.tokens:attr/colorPrimaryPalette99</item>
+        <item name="oemColorPrimaryPalette95">?com.android.oem.tokens:attr/colorPrimaryPalette95</item>
+        <item name="oemColorPrimaryPalette90">?com.android.oem.tokens:attr/colorPrimaryPalette90</item>
+        <item name="oemColorPrimaryPalette80">?com.android.oem.tokens:attr/colorPrimaryPalette80</item>
+        <item name="oemColorPrimaryPalette70">?com.android.oem.tokens:attr/colorPrimaryPalette70</item>
+        <item name="oemColorPrimaryPalette60">?com.android.oem.tokens:attr/colorPrimaryPalette60</item>
+        <item name="oemColorPrimaryPalette50">?com.android.oem.tokens:attr/colorPrimaryPalette50</item>
+        <item name="oemColorPrimaryPalette40">?com.android.oem.tokens:attr/colorPrimaryPalette40</item>
+        <item name="oemColorPrimaryPalette30">?com.android.oem.tokens:attr/colorPrimaryPalette30</item>
+        <item name="oemColorPrimaryPalette20">?com.android.oem.tokens:attr/colorPrimaryPalette20</item>
+        <item name="oemColorPrimaryPalette10">?com.android.oem.tokens:attr/colorPrimaryPalette10</item>
+        <item name="oemColorPrimaryPalette0">?com.android.oem.tokens:attr/colorPrimaryPalette0</item>
+        <item name="oemColorSecondaryPalette100">?com.android.oem.tokens:attr/colorSecondaryPalette100</item>
+        <item name="oemColorSecondaryPalette99">?com.android.oem.tokens:attr/colorSecondaryPalette99</item>
+        <item name="oemColorSecondaryPalette95">?com.android.oem.tokens:attr/colorSecondaryPalette95</item>
+        <item name="oemColorSecondaryPalette90">?com.android.oem.tokens:attr/colorSecondaryPalette90</item>
+        <item name="oemColorSecondaryPalette80">?com.android.oem.tokens:attr/colorSecondaryPalette80</item>
+        <item name="oemColorSecondaryPalette70">?com.android.oem.tokens:attr/colorSecondaryPalette70</item>
+        <item name="oemColorSecondaryPalette60">?com.android.oem.tokens:attr/colorSecondaryPalette60</item>
+        <item name="oemColorSecondaryPalette50">?com.android.oem.tokens:attr/colorSecondaryPalette50</item>
+        <item name="oemColorSecondaryPalette40">?com.android.oem.tokens:attr/colorSecondaryPalette40</item>
+        <item name="oemColorSecondaryPalette30">?com.android.oem.tokens:attr/colorSecondaryPalette30</item>
+        <item name="oemColorSecondaryPalette20">?com.android.oem.tokens:attr/colorSecondaryPalette20</item>
+        <item name="oemColorSecondaryPalette10">?com.android.oem.tokens:attr/colorSecondaryPalette10</item>
+        <item name="oemColorSecondaryPalette0">?com.android.oem.tokens:attr/colorSecondaryPalette0</item>
+        <item name="oemColorTertiaryPalette100">?com.android.oem.tokens:attr/colorTertiaryPalette100</item>
+        <item name="oemColorTertiaryPalette99">?com.android.oem.tokens:attr/colorTertiaryPalette99</item>
+        <item name="oemColorTertiaryPalette95">?com.android.oem.tokens:attr/colorTertiaryPalette95</item>
+        <item name="oemColorTertiaryPalette90">?com.android.oem.tokens:attr/colorTertiaryPalette90</item>
+        <item name="oemColorTertiaryPalette80">?com.android.oem.tokens:attr/colorTertiaryPalette80</item>
+        <item name="oemColorTertiaryPalette70">?com.android.oem.tokens:attr/colorTertiaryPalette70</item>
+        <item name="oemColorTertiaryPalette60">?com.android.oem.tokens:attr/colorTertiaryPalette60</item>
+        <item name="oemColorTertiaryPalette50">?com.android.oem.tokens:attr/colorTertiaryPalette50</item>
+        <item name="oemColorTertiaryPalette40">?com.android.oem.tokens:attr/colorTertiaryPalette40</item>
+        <item name="oemColorTertiaryPalette30">?com.android.oem.tokens:attr/colorTertiaryPalette30</item>
+        <item name="oemColorTertiaryPalette20">?com.android.oem.tokens:attr/colorTertiaryPalette20</item>
+        <item name="oemColorTertiaryPalette10">?com.android.oem.tokens:attr/colorTertiaryPalette10</item>
+        <item name="oemColorTertiaryPalette0">?com.android.oem.tokens:attr/colorTertiaryPalette0</item>
+        <item name="oemColorErrorPalette100">?com.android.oem.tokens:attr/colorErrorPalette100</item>
+        <item name="oemColorErrorPalette99">?com.android.oem.tokens:attr/colorErrorPalette99</item>
+        <item name="oemColorErrorPalette95">?com.android.oem.tokens:attr/colorErrorPalette95</item>
+        <item name="oemColorErrorPalette90">?com.android.oem.tokens:attr/colorErrorPalette90</item>
+        <item name="oemColorErrorPalette80">?com.android.oem.tokens:attr/colorErrorPalette80</item>
+        <item name="oemColorErrorPalette70">?com.android.oem.tokens:attr/colorErrorPalette70</item>
+        <item name="oemColorErrorPalette60">?com.android.oem.tokens:attr/colorErrorPalette60</item>
+        <item name="oemColorErrorPalette50">?com.android.oem.tokens:attr/colorErrorPalette50</item>
+        <item name="oemColorErrorPalette40">?com.android.oem.tokens:attr/colorErrorPalette40</item>
+        <item name="oemColorErrorPalette30">?com.android.oem.tokens:attr/colorErrorPalette30</item>
+        <item name="oemColorErrorPalette20">?com.android.oem.tokens:attr/colorErrorPalette20</item>
+        <item name="oemColorErrorPalette10">?com.android.oem.tokens:attr/colorErrorPalette10</item>
+        <item name="oemColorErrorPalette0">?com.android.oem.tokens:attr/colorErrorPalette0</item>
+        <item name="oemColorNeutralPalette100">?com.android.oem.tokens:attr/colorNeutralPalette100</item>
+        <item name="oemColorNeutralPalette99">?com.android.oem.tokens:attr/colorNeutralPalette99</item>
+        <item name="oemColorNeutralPalette95">?com.android.oem.tokens:attr/colorNeutralPalette95</item>
+        <item name="oemColorNeutralPalette90">?com.android.oem.tokens:attr/colorNeutralPalette90</item>
+        <item name="oemColorNeutralPalette80">?com.android.oem.tokens:attr/colorNeutralPalette80</item>
+        <item name="oemColorNeutralPalette70">?com.android.oem.tokens:attr/colorNeutralPalette70</item>
+        <item name="oemColorNeutralPalette60">?com.android.oem.tokens:attr/colorNeutralPalette60</item>
+        <item name="oemColorNeutralPalette50">?com.android.oem.tokens:attr/colorNeutralPalette50</item>
+        <item name="oemColorNeutralPalette40">?com.android.oem.tokens:attr/colorNeutralPalette40</item>
+        <item name="oemColorNeutralPalette30">?com.android.oem.tokens:attr/colorNeutralPalette30</item>
+        <item name="oemColorNeutralPalette20">?com.android.oem.tokens:attr/colorNeutralPalette20</item>
+        <item name="oemColorNeutralPalette10">?com.android.oem.tokens:attr/colorNeutralPalette10</item>
+        <item name="oemColorNeutralPalette0">?com.android.oem.tokens:attr/colorNeutralPalette0</item>
+        <item name="oemColorNeutralVariantPalette100">?com.android.oem.tokens:attr/colorNeutralVariantPalette100</item>
+        <item name="oemColorNeutralVariantPalette99">?com.android.oem.tokens:attr/colorNeutralVariantPalette99</item>
+        <item name="oemColorNeutralVariantPalette95">?com.android.oem.tokens:attr/colorNeutralVariantPalette95</item>
+        <item name="oemColorNeutralVariantPalette90">?com.android.oem.tokens:attr/colorNeutralVariantPalette90</item>
+        <item name="oemColorNeutralVariantPalette80">?com.android.oem.tokens:attr/colorNeutralVariantPalette80</item>
+        <item name="oemColorNeutralVariantPalette70">?com.android.oem.tokens:attr/colorNeutralVariantPalette70</item>
+        <item name="oemColorNeutralVariantPalette60">?com.android.oem.tokens:attr/colorNeutralVariantPalette60</item>
+        <item name="oemColorNeutralVariantPalette50">?com.android.oem.tokens:attr/colorNeutralVariantPalette50</item>
+        <item name="oemColorNeutralVariantPalette40">?com.android.oem.tokens:attr/colorNeutralVariantPalette40</item>
+        <item name="oemColorNeutralVariantPalette30">?com.android.oem.tokens:attr/colorNeutralVariantPalette30</item>
+        <item name="oemColorNeutralVariantPalette20">?com.android.oem.tokens:attr/colorNeutralVariantPalette20</item>
+        <item name="oemColorNeutralVariantPalette10">?com.android.oem.tokens:attr/colorNeutralVariantPalette10</item>
+        <item name="oemColorNeutralVariantPalette0">?com.android.oem.tokens:attr/colorNeutralVariantPalette0</item>
+    </style>
+
+    <!-- DeviceDefault theme for the default system theme.  -->
+    <style name="Theme.DeviceDefault.System" parent="android:Theme.DeviceDefault.Light.DarkActionBar" />
+
+    <!-- Theme used for the intent picker activity. -->
+    <style name="Theme.DeviceDefault.Resolver" parent="android:Theme.DeviceDefault">
+        <item name="android:windowEnterTransition">@empty</item>
+        <item name="android:windowExitTransition">@empty</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:colorControlActivated">?*android:attr/colorControlHighlight</item>
+        <item name="android:listPreferredItemPaddingStart">?*android:attr/dialogPreferredPadding</item>
+        <item name="android:listPreferredItemPaddingEnd">?*android:attr/dialogPreferredPadding</item>
+
+        <!-- Dialog attributes -->
+        <item name="android:dialogCornerRadius">@*android:dimen/config_dialogCornerRadius</item>
+        <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Light.Dialog.Alert</item>
+
+        <!-- Button styles -->
+        <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+        <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
+        <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
+
+        <!-- Color palette -->
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorError">@*android:color/error_color_device_default_light</item>
+        <item name="android:colorBackgroundFloating">?oemColorSurface</item>
+        <item name="android:colorButtonNormal">@color/btn_device_default</item>
+        <item name="android:colorControlHighlight">?oemColorSecondaryContainer</item>
+        <item name="android:colorControlNormal">@color/btn_device_default</item>
+        <item name="android:colorForeground">?oemColorOnSurface</item>
+        <item name="android:editTextColor">?oemColorOnSurface</item>
+        <item name="android:textColorHint">@*android:color/car_body2</item>
+        <item name="android:textColorPrimary">?oemColorOnSurface</item>
+        <item name="android:textColorSecondary">?oemColorSecondary</item>
+
+        <!-- Progress bar attributes -->
+        <item name="*android:colorProgressBackgroundNormal">@*android:color/config_progress_background_tint</item>
+        <item name="*android:progressBarCornerRadius">@*android:dimen/config_progressBarCornerRadius</item>
+
+        <!-- Toolbar attributes -->
+        <item name="android:toolbarStyle">@*android:style/Widget.DeviceDefault.Toolbar</item>
+
+        <item name="*android:toastFrameBackground">@drawable/toast_frame</item>
+        <item name="android:textAppearanceListItem">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSmall">?oemTextAppearanceBodyLarge</item>
+        <item name="android:textAppearanceListItemSecondary">?oemTextAppearanceBodySmall</item>
+
+        <!-- Icon sizes -->
+        <item name="*android:iconfactoryIconSize">@*android:dimen/resolver_icon_size</item>
+        <item name="*android:iconfactoryBadgeSize">@*android:dimen/resolver_badge_size</item>
+    </style>
+
+
+    <!-- DeviceDefault theme for windows that want to have the user's selected wallpaper appear
+    behind them. -->
+    <style name="Theme.DeviceDefault.Wallpaper" parent="android:Theme.DeviceDefault">
+        <!-- Color palette -->
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorError">@*android:color/error_color_device_default_dark</item>
+
+        <!-- Dialog attributes -->
+        <item name="android:dialogCornerRadius">@*android:dimen/config_dialogCornerRadius</item>
+        <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
+
+        <!-- Text styles -->
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
+
+        <!-- Button styles -->
+        <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+
+        <!-- Progress bar attributes -->
+        <item name="*android:colorProgressBackgroundNormal">@*android:color/config_progress_background_tint</item>
+        <item name="*android:progressBarCornerRadius">@*android:dimen/config_progressBarCornerRadius</item>
+
+        <!-- Toolbar attributes -->
+        <item name="android:toolbarStyle">@*android:style/Widget.DeviceDefault.Toolbar</item>
+
+        <item name="android:windowBackground">@*android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowShowWallpaper">true</item>
+    </style>
+
+    <!-- DeviceDefault theme for windows that want to have the user's selected wallpaper appear
+    behind them and without an action bar. -->
+    <style name="Theme.DeviceDefault.Wallpaper.NoTitleBar" parent="android:Theme.DeviceDefault.Wallpaper">
+        <!-- Color palette -->
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorError">@*android:color/error_color_device_default_dark</item>
+
+        <!-- Dialog attributes -->
+        <item name="android:dialogCornerRadius">@*android:dimen/config_dialogCornerRadius</item>
+        <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
+
+        <!-- Text styles -->
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
+
+        <!-- Button styles -->
+        <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+
+        <!-- Progress bar attributes -->
+        <item name="*android:colorProgressBackgroundNormal">@*android:color/config_progress_background_tint</item>
+        <item name="*android:progressBarCornerRadius">@*android:dimen/config_progressBarCornerRadius</item>
+
+        <!-- Toolbar attributes -->
+        <item name="android:toolbarStyle">@*android:style/Widget.DeviceDefault.Toolbar</item>
+
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!-- DeviceDefault theme for panel windows. This removes all extraneous window decorations, so
+    you basically have an empty rectangle in which to place your content. It makes the window
+    floating, with a transparent background, and turns off dimming behind the window.
+    Used for Autofill screens.-->
+    <style name="Theme.DeviceDefault.Panel" parent="android:Theme.Material.Panel">
+        <!-- Color palette -->
+        <item name="android:colorPrimary">?oemColorPrimary</item>
+        <item name="android:colorPrimaryDark">?oemColorPrimary</item>
+        <item name="android:colorAccent">?oemColorPrimary</item>
+        <item name="android:colorError">@*android:color/error_color_device_default_light</item>
+
+        <!-- Dialog attributes -->
+        <item name="android:dialogCornerRadius">@*android:dimen/config_dialogCornerRadius</item>
+        <item name="android:alertDialogTheme">@*android:style/Theme.DeviceDefault.Dialog.Alert</item>
+
+        <!-- Text styles -->
+        <item name="android:textAppearanceButton">?oemTextAppearanceLabelLarge</item>
+
+        <!-- Button styles -->
+        <item name="android:buttonCornerRadius">@*android:dimen/config_buttonCornerRadius</item>
+        <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
+
+        <!-- Progress bar attributes -->
+        <item name="*android:colorProgressBackgroundNormal">@*android:color/config_progress_background_tint</item>
+        <item name="*android:progressBarCornerRadius">@*android:dimen/config_progressBarCornerRadius</item>
+
+        <!-- Toolbar attributes -->
+        <item name="android:toolbarStyle">@*android:style/Widget.DeviceDefault.Toolbar</item>
+
+        <!-- Hide action bar -->
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+
+        <item name="android:selectableItemBackground">@*android:drawable/item_background</item>
+    </style>
+
+    <style name="Theme.DeviceDefault.Light.Panel" parent="android:Theme.DeviceDefault.Panel"/>
+
+    <style name="Theme.DeviceDefault.SystemUI" parent="android:Theme.DeviceDefault.Light" />
+</resources>

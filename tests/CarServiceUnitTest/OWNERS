@@ -1,0 +1,69 @@
+# Bug component: 1316886
+
+# ActivityManager
+per-file src/com/android/car/am/* = gauravbhola@google.com
+
+# AppFocus
+per-file src/com/android/car/AppFocusServiceTest.java = bkchoi@google.com
+
+# Audio
+per-file src/com/android/car/audio/* = hubertmis@google.com
+per-file src/com/android/car/audio/hal/* = hubertmis@google.com
+
+# Bluetooth
+per-file src/com/android/car/bluetooth/* = salsavage@google.com
+
+# Cluster
+per-file src/android/car/cluster/* = bkchoi@google.com
+per-file src/com/android/car/hal/ClusterHalServiceTest.java = bkchoi@google.com
+
+# Input
+per-file src/android/car/builtin/input/* = kanant@google.com
+per-file src/com/android/car/CarInput*.java = kanant@google.com
+per-file src/com/android/car/hal/InputHalServiceTest.java = kanant@google.com
+
+# OccupantZone
+per-file src/com/android/car/CarOccupantZoneServiceTest.java = xiangw@google.com
+
+# PackageManager
+per-file src/com/android/car/pm/* = gauravbhola@google.com
+
+# Power
+per-file src/com/android/car/garagemode/* = pdunaj@google.com,hubertmis@google.com
+per-file src/com/android/car/hardware/power/* = pdunaj@google.com,hubertmis@google.com
+per-file src/com/android/car/hal/PowerHalServiceTest.java = pdunaj@google.com,hubertmis@google.com
+per-file src/com/android/car/power/* = pdunaj@google.com,hubertmis@google.com
+
+# ProcInspector
+per-file src/com/android/car/procinspector/* = jahdiel@google.com
+
+# Property
+per-file src/com/android/car/CarProperty* = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/com/android/car/hal/PropertyHalServiceTest.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/com/android/car/hal/property/*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/com/android/car/property/*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+
+# StorageMonitoring
+per-file src/com/android/car/storagemonitoring/* = jahdiel@google.com
+
+# SystemInterface
+per-file src/com/android/car/systeminterface/* = pdunaj@google.com,hubertmis@google.com
+
+# Watchdog
+per-file assets/os/* = jahdiel@google.com
+per-file src/android/car/os/* = jahdiel@google.com
+per-file src/android/car/watchdoglib/* = jahdiel@google.com
+per-file src/com/android/car/os/* = jahdiel@google.com
+per-file src/com/android/car/watchdog/* = jahdiel@google.com
+
+# View
+per-file src/android/car/builtin/view/* = gauravbhola@google.com
+
+# VHAL
+per-file src/com/android/car/hal/fakevhal/*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/com/android/car/hal/Hal*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/com/android/car/hal/VehicleHal*.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+per-file src/com/android/car/*VehicleStubUnitTest.java = file:platform/hardware/interfaces:/automotive/vehicle/OWNERS
+
+# res folder
+per-file res/** = salsavage@google.com, kanant@google.com, evaschen@google.com, aaqibismail@google.com, jahdiel@google.com, hubertmis@google.com
